@@ -8,7 +8,7 @@
 
 
 void readInputFile(std::vector <std::vector<int>> & inputData){
-    std::ifstream ifs("sudokutest.txt");
+    std::ifstream ifs("sudoku2.txt");
     std::istream_iterator<std::string> begin(ifs);
     std::istream_iterator<std::string> finish;
     std::vector<std::string> v(begin,finish);
@@ -58,7 +58,6 @@ void fixColumns(std::vector<std::vector<int> > & sudokuMatrix){
             if(sudokuMatrix[i][j]>0 ) continue;
             std::set_intersection(rowRef[i].begin(), rowRef[i].end(), columnRef[j].begin(), columnRef[j].end(),std::back_inserter(v));
             if (v.size()==1){
-                std::cout<<"Assigning "<<v.back()<<" to "<<i<<","<<j<<std::endl;
                 sudokuMatrix[i][j]=v.front();
             }
         }
@@ -70,12 +69,13 @@ int main() {
     std::vector<std::vector<int> > sudokuMatrix;
     readInputFile(sudokuMatrix);
     printSudokuMatrix(sudokuMatrix);
-    std::cout<<numEmptyColumns(sudokuMatrix)<<std::endl;
-    fixColumns(sudokuMatrix);
-    std::cout<<numEmptyColumns(sudokuMatrix)<<std::endl;
+    bool done = false;
+    int prev=numEmptyColumns(sudokuMatrix);
+    while(!done){
+        fixColumns(sudokuMatrix);
+        int n=numEmptyColumns(sudokuMatrix);
+        done= n==prev || n==0;
+    } 
     printSudokuMatrix(sudokuMatrix);
-    fixColumns(sudokuMatrix);
-    std::cout<<numEmptyColumns(sudokuMatrix)<<std::endl;
-   printSudokuMatrix(sudokuMatrix);
        
 }
