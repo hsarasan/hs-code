@@ -148,20 +148,18 @@ int main(int argc, char **argv)
                     client[i] = -1;
                 }
                 else
-								{
-										buf[n]=0;
-										std::cout<<"Received "<<buf<<" from client "<<sockfd<<std::endl;
-		    						std::string reply("Ack from server => ");
-		    						strcpy(buf,reply.c_str());
-        						send(sockfd, buf, reply.size(), 0);
-								}
-                if(--nready < 0)
-                    break;
+		{
+			buf[n]=0;
+			std::cout<<"Received "<<buf<<" from client "<<sockfd<<std::endl;
+			std::string reply("Ack from server => ");
+		    	strcpy(buf,reply.c_str());
+        		send(sockfd, buf, reply.size(), 0);
+		}
+                	if(--nready < 0)
+                    		break;
             }
         }   
     }
 
     close(listenfd);
-
-
 }
