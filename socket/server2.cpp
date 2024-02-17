@@ -148,14 +148,13 @@ int main(int argc, char **argv)
                     client[i] = -1;
                 }
                 else
-		{
-		    std::string reply("Ack from server => ");
-		    reply=reply+buf;
-		    strcpy(buf,reply.c_str());
-                    send(sockfd, buf, reply.size(), 0);
-		}
-                        // error("error while sending the message.");
-                
+								{
+										buf[n]=0;
+										std::cout<<"Received "<<buf<<" from client "<<sockfd<<std::endl;
+		    						std::string reply("Ack from server => ");
+		    						strcpy(buf,reply.c_str());
+        						send(sockfd, buf, reply.size(), 0);
+								}
                 if(--nready < 0)
                     break;
             }

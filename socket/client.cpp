@@ -8,6 +8,8 @@
 #include <netdb.h>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <chrono>
 
 void error(const char *msg)
 {
@@ -36,30 +38,30 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    //void bcopy(const void *src, void *dest, size_t n);
     serv_addr.sin_family = AF_INET;
-    //bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
     memcpy((char *)&serv_addr.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
     serv_addr.sin_port = htons(portno);
 
 
-    //serv_addr.sin_port = portno;
-std::cout<<"Server "<<server->h_name<<std::endl;
-std::cout<<"Port "<<portno<<std::endl;
     if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
-    printf("Please enter the message: ");
-    std::string buf("hello");
-    strcpy(buffer,buf.c_str());
-    n = write(sockfd, buffer, buf.size());
-    if (n < 0) 
-         error("ERROR writing to socket");
-    n = read(sockfd, buffer, 255);
-    if (n < 0) 
-         error("ERROR reading from socket");
-    printf("%s\n", buffer);
-    strcpy(buffer,"well done mr ");
-    n = write(sockfd, buffer, 32);
-    close(sockfd);
+
+    bool done{false};
+    int count{0};
+    while(!done){
+	int pid=getpid();
+    	std::string buf = "from client "+ std::to_string(pid) + " =>" + std::to_string(count);
+	    buffer[buf.size()]=0;	
+			strcpy(buffer, buf.c_str());
+    	n = write(sockfd, buffer, buf.size());
+    	if (n < 0) 
+         	error("ERROR writing to socket");
+    	n = read(sockfd, buffer, 255);
+    	if (n < 0) 
+         	error("ERROR reading from socket");
+			count++;
+			if (count>10) done=true;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     return 0;
 }
