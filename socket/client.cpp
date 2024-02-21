@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     	n = read(sockfd, buffer, 255);
     	if (n < 0) 
          	error("ERROR reading from socket");
+			std::cout<<"From Server ["<<buffer<<"]"<<std::endl;
 			count++;
 			if (count>10) done=true;
 			std::this_thread::sleep_for(std::chrono::seconds(1));

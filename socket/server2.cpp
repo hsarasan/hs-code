@@ -8,7 +8,7 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <pthread.h>
+#include <thread>
 
 #include <iostream>
 #include <string>
@@ -25,7 +25,7 @@ void error(const char *msg)
   exit(1);
 }
 
-int main(int argc, char **argv)
+int socketInit(int portno)
 {
   int i, maxi, maxfd;
   int listenfd, connfd, sockfd;          
@@ -39,15 +39,7 @@ int main(int argc, char **argv)
   
   socklen_t clilen;         
   struct sockaddr_in serveraddr , clientaddr; 
-  int portno;             
 
-
-  if (argc != 2)
-  {
-    fprintf(stderr, "usage: %s <port>\n", argv[0]);
-    exit(1);
-  }
-  portno = atoi(argv[1]);
 
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
   if (listenfd < 0)
@@ -161,3 +153,11 @@ int main(int argc, char **argv)
 
   close(listenfd);
 }
+
+int main() {
+
+	std::thread sockThread(socketInit,8001);
+  sockThread.join();
+	return 0;
+}
+
