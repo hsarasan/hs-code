@@ -1,13 +1,23 @@
 #include "sockserver.h"
-#include "eventhandler.h"
+#include <chrono>
+#include <thread>
+
+
+std::string callback(std::string message){
+
+	static int value;
+	return "message from server " + std::to_string(++value);
+
+}
 
 
 int main() {
 
-	int fd = socketInit(8001);
-  std::cout<<"FD = "<<fd<<std::endl;
   EV::ServerSocketHandler ev;
-  std::thread evHandler(&EV::ServerSocketHandler::handleEvents,&ev,fd);
+  std::thread evHandler(&EV::ServerSocketHandler::listenAndCallback,&ev,8001, callback);
+	while(1) {
+		std::this_thread::sleep_for(std::chrono::seconds(2));
+	}
 	evHandler.join();
 	return 0;
 }
