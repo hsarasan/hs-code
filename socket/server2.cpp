@@ -6,6 +6,7 @@
 std::string callback(std::string message){
 
 	static int value;
+	std::cout<<"Received from client "<<message<<std::endl;
 	return "message from server " + std::to_string(++value);
 
 }
