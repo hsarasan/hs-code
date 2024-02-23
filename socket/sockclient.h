@@ -53,32 +53,28 @@ namespace SC
       initiateConnection();
     }
 
-    void sendAndReceive()
+    void sendAndReceive(std::string_view s)
     {
-
-      bool done{false};
-      char buffer[256];
-      memset(buffer, 256, 0);
-      int count{0};
-      while (!done)
-      {
-        int pid = getpid();
-        std::string buf = "from client " + std::to_string(pid) + " =>" + std::to_string(count);
-        buffer[buf.size()] = 0;
-        strcpy(buffer, buf.c_str());
-        int noBytesRead = write(sockFD, buffer, buf.size());
-        if (noBytesRead < 0)
+			char buffer[256];
+      int pid = getpid();
+      buffer[s.size()] = 0;
+      strcpy(buffer, std::string(s).c_str());
+      int noBytesRead = write(sockFD, buffer, s.size());
+      if (noBytesRead < 0)
           error("ERROR writing to socket");
-        noBytesRead = read(sockFD, buffer, 255);
-        buffer[noBytesRead] = 0;
-        if (noBytesRead < 0)
+      noBytesRead = read(sockFD, buffer, 255);
+      buffer[noBytesRead] = 0;
+      if (noBytesRead < 0)
           error("ERROR reading from socket");
-        std::cout << "From Server [" << buffer << "]" << std::endl;
-        count++;
-        if (count > 100)
-          done = true;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-      }
+      std::cout << "From Server [" << buffer << "]" << std::endl;
+    }
+    void sendMessage(std::string_view s)
+    {
+			char buffer[256];
+      int pid = getpid();
+      buffer[s.size()] = 0;
+      strcpy(buffer, std::string(s).c_str());
+      int noBytesRead = write(sockFD, buffer, s.size());
     }
   };
 };
