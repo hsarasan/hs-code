@@ -32,7 +32,7 @@ namespace EV
 		fd_set fullFDSet;
 		int listenFD;
 		std::vector<int> client;
-		std::function<std::string(std::string)> callback;
+		std::function<std::string(std::string, int)> callback;
 
 	public:
 		void error(const char *msg)
@@ -114,9 +114,11 @@ namespace EV
 						else
 						{
 							buf[n] = 0;
-							std::string reply = callback(buf);
-							strcpy(buf, reply.c_str());
-							send(sockfd, buf, reply.size(), 0);
+							std::string reply = callback(buf,sockfd);
+							if (!reply.empty()){
+								strcpy(buf, reply.c_str());
+								send(sockfd, buf, reply.size(), 0);
+							}
 						}
 						if (--noFDsSet < 0)
 							break;
@@ -127,7 +129,7 @@ namespace EV
 			close(listenFD);
 		}
 
-		void listenAndCallback(const int portno, std::function<std::string(std::string)> f)
+		void listenAndCallback(const int portno, std::function<std::string(std::string, int)> f)
 		{
 			int i, maxi, maxfd;
 			int connfd, sockfd;
@@ -151,6 +153,15 @@ namespace EV
 
 			callback = f;
 			handleEvents();
+		}
+		void broadcast(std::string_view s, int exceptionFD) {
+			char buf[256];
+			strcpy(buf, std::string(s).c_str());
+			std::for_each(client.begin(), client.end(), [&](int fd){
+				if (fd!=-1 && fd!=exceptionFD){
+					send(fd, buf, s.size(), 0);
+				}
+			});
 		}
 	};
 };

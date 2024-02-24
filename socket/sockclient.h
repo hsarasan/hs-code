@@ -10,6 +10,7 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <functional>
 
 namespace SC
 {
@@ -20,6 +21,8 @@ namespace SC
     int sockFD;
     int port;
     std::string host;
+    fd_set fullFDSet;
+    std::function<void(std::string_view)> callback;
 
     void error(const char *msg)
     {
@@ -52,25 +55,57 @@ namespace SC
     {
       initiateConnection();
     }
+    void handleEvents(std::function<void(std::string_view)> f)
+    {
+      callback=f;
+      FD_SET(sockFD, &fullFDSet);
+      for (;;)
+      {
+        auto fdSetCopy = fullFDSet;
+        int sel;
+        if ((sel = select(sockFD + 1, &fdSetCopy, NULL, NULL, NULL)) < 0)
+        {
+          error("Error is select");
+        }
+        int n;
+        /* this is done for new connections */
+        if (FD_ISSET(sockFD, &fdSetCopy)) /* new client has requested connection */
+        {
+          char buf[256];
+          if ((n = recv(sockFD, buf, 1024, 0)) == 0)
+          {
+            /* connection closed by client side */
+            FD_CLR(sockFD, &fullFDSet);
+            break;
+          }
+          else
+          {
+            buf[n] = 0;
+            std::cout << "Received " << buf << std::endl;
+          }
+        }
+      }
+      close(sockFD);
+    }
 
     void sendAndReceive(std::string_view s)
     {
-			char buffer[256];
+      char buffer[256];
       int pid = getpid();
       buffer[s.size()] = 0;
       strcpy(buffer, std::string(s).c_str());
       int noBytesRead = write(sockFD, buffer, s.size());
       if (noBytesRead < 0)
-          error("ERROR writing to socket");
+        error("ERROR writing to socket");
       noBytesRead = read(sockFD, buffer, 255);
       buffer[noBytesRead] = 0;
       if (noBytesRead < 0)
-          error("ERROR reading from socket");
+        error("ERROR reading from socket");
       std::cout << "From Server [" << buffer << "]" << std::endl;
     }
     void sendMessage(std::string_view s)
     {
-			char buffer[256];
+      char buffer[256];
       int pid = getpid();
       buffer[s.size()] = 0;
       strcpy(buffer, std::string(s).c_str());
