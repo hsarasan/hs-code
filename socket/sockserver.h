@@ -104,6 +104,7 @@ namespace EV
 
 					if (FD_ISSET(sockfd, &fdSetCopy))
 					{
+						memset(buf,256,0);
 						if ((n = recv(sockfd, buf, MAX, 0)) == 0)
 						{
 							/* connection closed by client side */
@@ -115,7 +116,12 @@ namespace EV
 						{
 							buf[n] = 0;
 							std::string reply = callback(buf,sockfd);
-							if (!reply.empty()){
+							if ( reply=="close"){
+								close(sockfd);
+								FD_CLR(sockfd, &fullFDSet);
+								client[i] = -1;
+							}
+							else if (!reply.empty()){
 								strcpy(buf, reply.c_str());
 								send(sockfd, buf, reply.size(), 0);
 							}
@@ -162,6 +168,9 @@ namespace EV
 					send(fd, buf, s.size(), 0);
 				}
 			});
+		}
+		int getNumberOfConnections(){
+			return std::count_if(client.begin(), client.end(), [](int x){ return x!=-1;});
 		}
 	};
 };

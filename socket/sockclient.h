@@ -23,6 +23,7 @@ namespace SC
     std::string host;
     fd_set fullFDSet;
     std::function<void(std::string_view)> callback;
+    std::function<void()> disconnect;
 
     void error(const char *msg)
     {
@@ -55,9 +56,10 @@ namespace SC
     {
       initiateConnection();
     }
-    void handleEvents(std::function<void(std::string_view)> f)
+    void handleEvents(std::function<void(std::string_view)> f, std::function<void()> finish)
     {
       callback=f;
+      disconnect = finish;
       FD_SET(sockFD, &fullFDSet);
       for (;;)
       {
@@ -68,24 +70,25 @@ namespace SC
           error("Error is select");
         }
         int n;
-        /* this is done for new connections */
-        if (FD_ISSET(sockFD, &fdSetCopy)) /* new client has requested connection */
+        if (FD_ISSET(sockFD, &fdSetCopy)) 
         {
           char buf[256];
           if ((n = recv(sockFD, buf, 1024, 0)) == 0)
           {
-            /* connection closed by client side */
+            /* connection closed by server side */
             FD_CLR(sockFD, &fullFDSet);
             break;
           }
           else
           {
             buf[n] = 0;
-            std::cout << "Received " << buf << std::endl;
+            callback(buf);
+            //std::cout << "Received " << buf << std::endl;
           }
         }
       }
       close(sockFD);
+      disconnect();
     }
 
     void sendAndReceive(std::string_view s)
@@ -101,7 +104,7 @@ namespace SC
       buffer[noBytesRead] = 0;
       if (noBytesRead < 0)
         error("ERROR reading from socket");
-      std::cout << "From Server [" << buffer << "]" << std::endl;
+      //std::cout << "From Server [" << buffer << "]" << std::endl;
     }
     void sendMessage(std::string_view s)
     {
