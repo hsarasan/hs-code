@@ -6,6 +6,10 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
+
+#include <string>
+#include <thread>
+#include <cstdlib>
    
 #define PORT     8080 
 #define MAXLINE 1024 
@@ -14,7 +18,6 @@
 int main() { 
     int sockfd; 
     char buffer[MAXLINE]; 
-    const char *hello = "Hello from client"; 
     struct sockaddr_in     servaddr; 
    
     // Creating socket file descriptor 
@@ -32,17 +35,17 @@ int main() {
        
     int n;
     socklen_t len; 
-       
-    sendto(sockfd, (const char *)hello, strlen(hello), 
-        MSG_CONFIRM, (const struct sockaddr *) &servaddr,  
-            sizeof(servaddr)); 
-    std::cout<<"Hello message sent."<<std::endl; 
-           
-    n = recvfrom(sockfd, (char *)buffer, MAXLINE,  
-                MSG_WAITALL, (struct sockaddr *) &servaddr, 
-                &len); 
-    buffer[n] = '\0'; 
-    std::cout<<"Server :"<<buffer<<std::endl; 
+      
+		int seqNo{1};
+		for (;;) 
+		{
+			std::string mesg="seq:" + std::to_string(seqNo++);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+    	sendto(sockfd, (const char *)mesg.c_str(), strlen(mesg.c_str()), MSG_CONFIRM, (const struct sockaddr *) &servaddr,  sizeof(servaddr)); 
+    	n = recvfrom(sockfd, (char *)buffer, MAXLINE,  MSG_WAITALL, (struct sockaddr *) &servaddr, &len); 
+    	buffer[n] = '\0'; 
+    	std::cout<<"Server :"<<buffer<<std::endl; 
+		}
    
     close(sockfd); 
     return 0; 
