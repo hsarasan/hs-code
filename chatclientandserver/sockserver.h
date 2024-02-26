@@ -96,7 +96,7 @@ namespace EV
 						continue;
 				}
 
-				/* handle all the clients requesting */
+				/* handle all the clients messages */
 				for (i = 0; i <= maxi; i++)
 				{
 					if ((sockfd = client[i]) < 0)
