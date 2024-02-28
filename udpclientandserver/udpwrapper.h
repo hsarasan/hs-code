@@ -1,5 +1,6 @@
 #include "udpmessage.h"
 
+
 class UDPClient
 {
     int port;
@@ -11,7 +12,8 @@ class UDPClient
         int seqNo{0};
         for (;;){
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            std::cout << "From worker thread" << std::endl;
+            //std::cout << "From worker thread" << std::endl;
+
             std::string seqMessage(std::string("SeqMessage:[")+ std::to_string(id)+"]:"+ std::to_string(seqNo++));
             udp.send(seqMessage);
         }
@@ -26,6 +28,10 @@ public:
         workerThread.detach();
     }
 };
+
+void callback_fn(std::string mesg){
+    std::cout<<"From Select ["<<mesg<<"]"<<std::endl;
+}
 class UDPServer
 {
     int port;
@@ -34,7 +40,7 @@ class UDPServer
         UDP udp;
         udp.initServer(portno);
         int seqNo{0};
-        udp.setCallbackOnReceive();
+        udp.setCallbackOnReceive(callback_fn);
     }
 
 public:

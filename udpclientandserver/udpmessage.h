@@ -11,6 +11,7 @@
 #include <string>
 #include <thread>
 #include <cstdlib>
+#include <functional>
    
 
 #define MAXLINE 1024
@@ -63,7 +64,7 @@ class UDP
     void send(const std::string & mesg){
         sendto(sockfd, (const char *)mesg.c_str(), strlen(mesg.c_str()), MSG_CONFIRM, (const struct sockaddr *) &servaddr,  sizeof(servaddr)); 
     }
-    void setCallbackOnReceive(){
+    void setCallbackOnReceive(std::function<void(std::string)> cb_fn){
         fd_set fdSetToMonitor;
         FD_SET(sockfd, &fdSetToMonitor);
         for (;;){
@@ -77,6 +78,7 @@ class UDP
                 int n = recvfrom(sockfd, (char *)buffer, MAXLINE,  MSG_WAITALL, (struct sockaddr *) &servaddr, &len); 
                 buffer[n]=0;
                 std::cout<<"Message Received "<<buffer<<std::endl;
+                cb_fn(buffer);
             }
         }
     }
