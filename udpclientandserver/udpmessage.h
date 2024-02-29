@@ -61,14 +61,19 @@ class UDP
         buffer[n]=0;
         return std::string(buffer);
     }
+
     void send(const std::string & mesg){
         sendto(sockfd, (const char *)mesg.c_str(), strlen(mesg.c_str()), MSG_CONFIRM, (const struct sockaddr *) &servaddr,  sizeof(servaddr)); 
     }
-    void setCallbackOnReceive(std::function<void(std::string)> cb_fn){
+
+
+    void setCallbackOnReceive(std::function<void(std::string)> cb_fn, int timeoutInSeconds=0){
         fd_set fdSetToMonitor;
-        FD_SET(sockfd, &fdSetToMonitor);
+        	
         for (;;){
-            if (int nFD = select (sockfd+1, &fdSetToMonitor, NULL, NULL, NULL)<0 ){
+            FD_SET(sockfd, &fdSetToMonitor);	
+            struct timeval tv = {timeoutInSeconds, 0};
+            if (int nFD = select (sockfd+1, &fdSetToMonitor, NULL, NULL, &tv)<0 ){
                 std::cerr<<"ERROR in select"<<std::endl;
                 exit(1);
             }
@@ -79,6 +84,10 @@ class UDP
                 buffer[n]=0;
                 std::cout<<"Message Received "<<buffer<<std::endl;
                 cb_fn(buffer);
+            }
+            else{ /* timeout */
+                std::cerr<<"WARNING....SERVICE DOWN"<<std::endl;
+                FD_CLR(sockfd, &fdSetToMonitor);
             }
         }
     }

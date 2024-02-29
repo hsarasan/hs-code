@@ -1,5 +1,11 @@
 #include "udpmessage.h"
+#include <condition_variable>
+#include <mutex>
+#include <atomic>
 
+std::condition_variable cv;
+std::mutex m;
+std::string Message;
 
 class UDPClient
 {
@@ -10,17 +16,31 @@ class UDPClient
         UDP udp;
         udp.initClient(portno);
         int seqNo{0};
-        for (;;){
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            //std::cout << "From worker thread" << std::endl;
-
-            std::string seqMessage(std::string("SeqMessage:[")+ std::to_string(id)+"]:"+ std::to_string(seqNo++));
-            udp.send(seqMessage);
+        std::string seqMessage;
+        for (;;)
+        {
+            if (id != 1)
+            {
+                std::unique_lock<std::mutex> lk(m);
+                cv.wait(lk, []()
+                        { return !Message.empty(); });
+                std::cout << "From non master sending=>" << Message << std::endl;
+                seqMessage = Message;
+                Message.clear();
+                udp.send(seqMessage);
+            }
+            else
+            {
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                seqMessage = std::to_string(seqNo++);
+                std::cout << "From master sending=>" << seqMessage << std::endl;
+                udp.send(seqMessage);
+            }
         }
     }
 
 public:
-    UDPClient(int id, int portno) : port(portno),id(id) {}
+    UDPClient(int id, int portno) : port(portno), id(id) {}
 
     void process()
     {
@@ -29,8 +49,10 @@ public:
     }
 };
 
-void callback_fn(std::string mesg){
-    std::cout<<"From Select ["<<mesg<<"]"<<std::endl;
+void callback_fn(std::string mesg)
+{
+    Message = mesg;
+    cv.notify_one();
 }
 class UDPServer
 {
@@ -40,7 +62,7 @@ class UDPServer
         UDP udp;
         udp.initServer(portno);
         int seqNo{0};
-        udp.setCallbackOnReceive(callback_fn);
+        udp.setCallbackOnReceive(callback_fn,3);
     }
 
 public:

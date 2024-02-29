@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     udpclient.process();
     for (;;){
         std::this_thread::sleep_for(std::chrono::seconds(2));
-        //std::cout<<"From main for server"<<std::endl;
+        /* do other stuff*/
     }
     return 0;
 }
