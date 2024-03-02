@@ -9,6 +9,7 @@
 struct spinlock{
     std::atomic_flag flag;
     public:
+        spinlock():flag(ATOMIC_FLAG_INIT){}
         void lock(){
             while(flag.test_and_set());
         }
