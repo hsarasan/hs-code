@@ -3,6 +3,8 @@
 #include <vector>
 #include <memory>
 #include <queue>
+#include <ranges>
+#include <algorithm>
 
 enum NodeType{ Leaf, NonLeaf};
 struct Node{
@@ -45,6 +47,24 @@ class Trie{
                 addWordHelper(n->m[Character].get(),s,++pos);
             }
         }
+        void searchNode(Node *n,  std::vector<std::string> & fullWords){
+            std::queue<Node*> Q;
+            if (n){
+                if (n->type==NodeType::NonLeaf){
+                    for ( const auto & [k,v]:n->m){
+                        Q.push(v.get());
+                    }
+                }
+                else{
+                    fullWords.push_back(n->completeWord);
+                }
+            }  
+            while(!Q.empty()){
+                auto n_next=Q.front();
+                Q.pop();
+                searchNode(n_next,fullWords);
+            }
+        }
         void printNode(Node * n){
             std::queue<Node*> Q;
             if(n){
@@ -72,11 +92,18 @@ class Trie{
         }
         std::vector<std::string> search(std::string input){
             
-            std::vector<std::string> s;
-            return s;
+            std::vector<std::string> v;
+            auto node=root.get();
+            for (const auto ch: input){
+                node=node->m[ch].get();
+                if (!node) return v;
+            }
+            searchNode(node, v);
+            std::ranges::copy(v,std::ostream_iterator<std::string>(std::cout," "));
+            std::cout<<std::endl;
+            return v;
         }
         void printTrie(){
-            std::cout<<"Root"<<std::endl;
             printNode(root.get());
         }
         
@@ -88,4 +115,8 @@ int main() {
     trie.addWord("abd");
     trie.addWord("fgh");
     trie.printTrie();
+    trie.search("ab");
+    trie.search("f");
+    trie.search("abc");
+    trie.search("abcde");
 }
