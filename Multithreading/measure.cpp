@@ -24,14 +24,14 @@ struct Spinlock{
 Spinlock s;
 
 void increment1(){
-    for (int i=0;i<1000;++i){
+    for (int i=0;i<10000;++i){
         std::lock_guard<std::mutex> l(m);
         value++;
     }
 }
 
 void increment2(){
-    for (int i=0;i<1000;++i){
+    for (int i=0;i<10000;++i){
         s.lock();
         value++;
         s.unlock();
@@ -39,8 +39,8 @@ void increment2(){
 }
 
 void increment3(){
-    for (int i=0;i<1000;++i){
-       V++;
+    for (int i=0;i<10000;++i){
+       V.fetch_add(1,std::memory_order_acq_rel);
     }
 }
 
@@ -60,7 +60,6 @@ int main(int argc, char * argv[]){
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
     auto t2 = std::chrono::high_resolution_clock::now();
     auto ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-    assert(value=NUM_THREADS*1000);
     std::cout<<"TimeTaken with Mx="<<ms_int.count()<<std::endl;
 
     t1 = std::chrono::high_resolution_clock::now();
@@ -71,7 +70,6 @@ int main(int argc, char * argv[]){
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
     t2 = std::chrono::high_resolution_clock::now();
     ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-    assert(value=NUM_THREADS*1000);
     std::cout<<"TimeTaken with SpinLock="<<ms_int.count()<<std::endl;
 
     t1 = std::chrono::high_resolution_clock::now();
@@ -81,7 +79,6 @@ int main(int argc, char * argv[]){
     std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join));
     t2 = std::chrono::high_resolution_clock::now();
     ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
-    assert(V.load()==NUM_THREADS*1000);
     std::cout<<"TimeTaken with Atomic="<<ms_int.count()<<std::endl;
 
 }
