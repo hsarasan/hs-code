@@ -9,6 +9,10 @@
         "cmath": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
+<<<<<<< Updated upstream
+=======
+        "cstdarg": "cpp",
+>>>>>>> Stashed changes
         "cstddef": "cpp",
         "cstdint": "cpp",
         "cstdio": "cpp",
@@ -22,7 +26,10 @@
         "set": "cpp",
         "string": "cpp",
         "unordered_map": "cpp",
+<<<<<<< Updated upstream
         "unordered_set": "cpp",
+=======
+>>>>>>> Stashed changes
         "vector": "cpp",
         "exception": "cpp",
         "algorithm": "cpp",
@@ -38,7 +45,10 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
+<<<<<<< Updated upstream
         "fstream": "cpp",
+=======
+>>>>>>> Stashed changes
         "initializer_list": "cpp",
         "iosfwd": "cpp",
         "iostream": "cpp",
@@ -48,7 +58,10 @@
         "numbers": "cpp",
         "ostream": "cpp",
         "ranges": "cpp",
+<<<<<<< Updated upstream
         "span": "cpp",
+=======
+>>>>>>> Stashed changes
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
