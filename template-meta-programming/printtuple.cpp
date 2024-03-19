@@ -1,6 +1,7 @@
 #include <iostream>
 #include <array>
 #include <string>
+#include <tuple>
 
 template <typename T, int size, int Index=0>
 void printTuple(const T t){
