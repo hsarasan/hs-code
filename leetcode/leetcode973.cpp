@@ -1,3 +1,5 @@
+using namespace std;
+
 struct compare_pairs{
 bool operator()( const std::pair<int,int>  x, const std::pair<int,int>  y) const{
         return x.first*x.first + x.second*x.second < y.first*y.first + y.second*y.second;
