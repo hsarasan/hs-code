@@ -21,12 +21,13 @@ class TopStocks{
         void updateCount(const std::string & ticker, int count ){
             int current_count=ticker_count[ticker];
             auto iter = count_to_ticker.find(current_count);
-            for (auto it=iter; it!=count_to_ticker.end(); ++it){
-                if (it->first==current_count && it->second==ticker){
-                    count_to_ticker.erase(it);
-                    break;
-                }
-            }
+            
+            auto it = std::find_if(count_to_ticker.begin(), count_to_ticker.end(), 
+                            [&](std::pair<int,std::string> p){
+                                return p.first==count && p.second==ticker;
+                            });
+            if (it!=count_to_ticker.end()) count_to_ticker.erase(it);
+
             ticker_count[ticker]+=count;
             count_to_ticker.insert({count+current_count,ticker});
         }
