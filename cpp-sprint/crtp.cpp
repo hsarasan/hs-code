@@ -14,7 +14,7 @@ class Derived: public Base<Derived>{
         std::cout<<"Derived:f()"<<std::endl;
     }
 };
-class Derived2: public Base<Derived>{
+class Derived2: public Base<Derived2>{
     public:
     void f2(){
         std::cout<<"Derived2:f()"<<std::endl;
@@ -24,6 +24,6 @@ class Derived2: public Base<Derived>{
 int main(){
     Derived d;
     d.f();
-    Derived d2;
+    Derived2 d2;
     d2.f();
 }
