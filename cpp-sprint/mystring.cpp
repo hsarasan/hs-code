@@ -33,6 +33,7 @@ class RCString{
         RCString & operator=(RCString &&rhs){
             RCString temp = std::move(rhs);
             std::swap(pSV, temp.pSV);
+            std::cout<<pSV.use_count();
             return *this;
         }
         friend std::ostream& operator<<(std::ostream& , const RCString &);
