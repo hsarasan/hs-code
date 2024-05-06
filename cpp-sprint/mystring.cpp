@@ -1,63 +1,74 @@
 #include <iostream>
 #include <cstring>
+#include <memory>
 
-class mystring{
+struct StringValue{
     char * data;
-    public:
-        mystring(const char * _charPtr)  { 
-            std::cout<<"ctor"<<std::endl;
-            int sz=std::strlen(_charPtr);
-            data = new char(sz+1);
-            memcpy(data, _charPtr, sz);
-            data[sz]=0;
-        }
-        bool operator==(const char *rhs){
-            return true;
-        }
-        mystring (const mystring & rhs){
-            std::cout<<"copy ctor"<<std::endl;
-            data=rhs.data;
-        }
-        mystring (mystring && rhs){
-            std::cout<<"Move ctor "<<std::endl;
-            data=std::move(rhs.data);
-        }
-        mystring & operator=(const mystring & rhs){
-            std::cout<<"Operator="<<std::endl;
-            auto temp(rhs);
-            swap(temp);
-            return *this;
-        }
-        mystring & operator=(mystring &&rhs){
-            std::cout<<"Operator move"<<std::endl;
-            auto temp = std::move(rhs);
-            swap(temp);
-            return *this;
-        }
-        void swap(mystring &rhs) noexcept{
-            auto temp = rhs.data;
-            rhs.data=data;
-            data=temp;
-        }
-        friend std::ostream & operator<<(std::ostream&, const mystring&);
+    ~StringValue(){
+        std::cout<<"Deleting SV "<<data<<std::endl;
+    }
 };
 
-std::ostream& operator<<(std::ostream & o, const mystring & obj){
-    o<<obj.data;
+class RCString{
+    std::shared_ptr<StringValue> pSV;
+    public:
+        RCString(const char * rhs){
+            pSV=std::make_shared<StringValue> ();
+            int size=std::strlen(rhs);
+            pSV->data = new char[size+1];
+            std::strcpy(pSV->data, rhs);
+            pSV->data[size]=0;
+        }
+        RCString(const RCString & rhs){
+            pSV=rhs.pSV;
+        }
+        RCString& operator=(const RCString &rhs){
+            RCString temp(rhs);
+            std::swap(pSV, temp.pSV);
+            return *this;
+        }
+        RCString (RCString && rhs){
+            pSV=std::move(rhs.pSV);
+        }
+        RCString & operator=(RCString &&rhs){
+            RCString temp = std::move(rhs);
+            std::swap(pSV, temp.pSV);
+            return *this;
+        }
+        friend std::ostream& operator<<(std::ostream& , const RCString &);
+};
+
+std::ostream& operator<<(std::ostream& o, const RCString & str){
+    o<<str.pSV->data;
     return o;
 }
 
-int main(){
-    mystring x1("object to copy");
-    mystring x2("object to move");
-    mystring x3("object for copy operator");
-    mystring x4("obj for move operator");
-    auto x_copy = x1;
-    auto x_move = std::move(x2);
-    std::cout<<x_copy<<" "<<x_move<<std::endl;
-    x_copy = x3;
-    x_move = std::move(x4);
-    std::cout<<x_copy<<" "<<x_move<<std::endl;
-    return 0;
+void copy(){
+    RCString str1("abc");
+    RCString str2("str2");
+    RCString str3(str2);
+    RCString str4("str4");
+    str1 = str3;
+    str4=str4;
+    std::cout<<str1<<std::endl;
+    std::cout<<str3<<std::endl;
+    std::cout<<str4<<std::endl;
+}
 
+void move(){
+    RCString str1("abc");
+    RCString str2("str2");
+    RCString str3(std::move(str2));
+    RCString str4("str4");
+    std::cout<<str1<<std::endl;
+    std::cout<<str3<<std::endl;    
+    str1 = std::move(str3);
+    str4=std::move(str4);
+    std::cout<<str1<<std::endl;
+    std::cout<<str4<<std::endl;
+}
+
+int main(){
+    move();
+    return 0;
 }
