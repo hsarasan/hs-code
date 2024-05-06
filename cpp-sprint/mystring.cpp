@@ -21,19 +21,22 @@ class RCString{
         }
         RCString(const RCString & rhs){
             pSV=rhs.pSV;
+            std::cout<<pSV->data<<""<<pSV.use_count()<<std::endl;
         }
         RCString& operator=(const RCString &rhs){
             RCString temp(rhs);
             std::swap(pSV, temp.pSV);
+            std::cout<<pSV->data<<""<<pSV.use_count()<<std::endl;
             return *this;
         }
         RCString (RCString && rhs){
             pSV=std::move(rhs.pSV);
+            std::cout<<pSV->data<<""<<pSV.use_count()<<std::endl;
         }
         RCString & operator=(RCString &&rhs){
             RCString temp = std::move(rhs);
             std::swap(pSV, temp.pSV);
-            std::cout<<pSV.use_count();
+            std::cout<<pSV->data<<""<<pSV.use_count()<<std::endl;
             return *this;
         }
         friend std::ostream& operator<<(std::ostream& , const RCString &);
@@ -69,7 +72,24 @@ void move(){
     std::cout<<str4<<std::endl;
 }
 
+void count(){
+    RCString str1("abc");
+    std::cout<<"================"<<std::endl;
+    RCString str2(str1);
+    std::cout<<"================"<<std::endl;
+    RCString str3("def");
+    std::cout<<"================"<<std::endl;
+    str3=str2;
+    std::cout<<"================"<<std::endl;
+    RCString str4("ghij");
+    std::cout<<"================"<<std::endl;
+    str3=std::move(str4);
+    std::cout<<"================"<<std::endl;
+    RCString str5(std::move(str3));
+    std::cout<<"================"<<std::endl;
+}
+
 int main(){
-    move();
+    count();
     return 0;
 }
