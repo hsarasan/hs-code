@@ -12,15 +12,21 @@ class Complex{
         }
         Complex(const Complex & c) { 
             std::cout<<"C(const Complex &)"<<std::endl;
-            real = c.real;
-            imag = c.imag;
+            imag=c.imag;
+            real=c.real;
+        }
+        void swap(Complex &rhs){
+            std::swap(rhs.imag,imag);
+            std::swap(rhs.real,real);
         }
         Complex & operator=(const Complex &c){
+            if (&c == this) return *this;
             std::cout<<"operator=(const Complex &)"<<std::endl;
-            real = c.real;
-            imag = c.imag;
+            Complex temp(c);
+            swap(temp); 
             return *this;
         }
+        
         Complex(Complex && c){
             std::cout<<"C(Complex &&)"<<std::endl;
             int temp(c.imag);
@@ -29,6 +35,7 @@ class Complex{
             std::swap(temp,real);
         }
         Complex& operator=(Complex &&c){
+            if (&c == this) return *this;
             std::cout<<"operator=(Complex &&)"<<std::endl;
             int temp(c.imag);
             std::swap(temp,imag);
