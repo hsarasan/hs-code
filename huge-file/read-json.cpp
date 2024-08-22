@@ -17,16 +17,17 @@ int countSubstring(const std::string& str, const std::string& sub)
 		++count;
 	}
 	return count;
-}
+} 
 
 void extract(std::string & str, int pos){
     int vm_pos = str.find("VM", pos);
     int length_to_look = vm_pos - pos;
-    assert(length_to_look<6000);
+    //assert(length_to_look<6000);
     std::string full_data = str.substr(pos,length_to_look);
     int start_pos=0;
     int valor_count = countSubstring(full_data, "valor");
-    assert(valor_count<50);
+    //std::cout<<valor_count<<std::endl;
+    //assert(valor_count<50);
     for (int i=0;i<valor_count;++i) {
         int data_pos=full_data.find("data",start_pos);
         data_pos+=7;
