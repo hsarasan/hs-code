@@ -44,7 +44,7 @@ class Director{
 };
 
 
-
+//client code
 int main(){
     GreekStyleHouseBuilder greekHouseBuilder;
     Director director(&greekHouseBuilder);
