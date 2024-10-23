@@ -10,8 +10,10 @@ class Integer : public enable_shared_from_this<Integer>{
 };
 
 int main(){
-    auto i = make_shared<Integer>(10);
-    auto iShPtr = i->shared_from_this();
-    cout<<iShPtr.use_count()<<endl;
+    auto i = new Integer(10);
+    shared_ptr<Integer> ip(i);
+    shared_ptr<Integer> ip2(i);
+    auto ip3 = ip->shared_from_this();
+    cout<<ip.use_count()<<endl;
     return 0;
 }
