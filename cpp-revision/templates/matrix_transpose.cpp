@@ -1,5 +1,6 @@
 #include <iostream>
 #include <array>
+#include <type_traits>
 
 using namespace std;
 
@@ -25,5 +26,6 @@ int main(){
     static_assert(dim.first==3);
     static_assert(dim.second==2);
     static_assert(arr2[1][0]==2);
+    static_assert(std::is_same_v< std::array< std::array<int,2>,3>, decay_t<decltype(arr2)>>);
     return 0;
 }
