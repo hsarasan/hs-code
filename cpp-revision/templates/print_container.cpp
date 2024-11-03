@@ -10,7 +10,8 @@ using namespace std;
 
 template <typename Container>
 void printContainer(const Container & c){
-    copy(c.begin(), c.end(), ostream_iterator<typename Container::value_type>(cout,","));
+    using T=Container::value_type;
+    copy(c.begin(), c.end(), ostream_iterator<T>(cout,","));
     cout<<endl;
 }
 
