@@ -15,18 +15,11 @@ struct Tuple<T>{
     T value;
 };
 
-template <int N, typename T, typename... Ts>
-struct nthType: public nthType<N-1,Ts...>{};
-
-template <typename T, typename...Ts>
-struct nthType <0,T,Ts...>{
-    using value_type=T;
-};
 
 template <int N>
 struct getter{
     template <typename... Ts> 
-    static typename nthType<N,Ts...>::value_type get(Tuple<Ts...> & tup){
+    static auto get(Tuple<Ts...> & tup){
         return getter<N-1>::get(tup.rest);
     }
 };
@@ -39,7 +32,7 @@ struct getter<0>{
 };
 
 template <int N, typename... Ts>
-typename nthType<N,Ts...>::value_type get(Tuple<Ts...> arg){
+auto get(Tuple<Ts...> arg){
     return getter<N>::get(arg);
 }
 
