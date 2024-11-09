@@ -1,10 +1,14 @@
 #include <iostream>
 #include <type_traits>
+#include <cassert>
 
 using namespace std;
 
-template <typename T, typename T2=void> struct does_foo_exist:std::false_type{};
-template <typename T> struct does_foo_exist <T, std::void_t<decltype(declval<T>().foo())> > : true_type{};
+
+template <typename T, typename = void> struct if_foo_exists : false_type {};
+
+template <typename T>
+struct if_foo_exists<T, std::void_t<decltype(std::declval<T>().foo())>> : std::true_type {};
 
 struct WithFoo{
     void foo(){}
@@ -13,7 +17,8 @@ struct WithFoo{
 struct WithOutFoo{};
 
 int main(){
-    cout<<does_foo_exist<WithFoo>::value<<endl;
-    cout<<does_foo_exist<WithOutFoo>::value<<endl;
+    static_assert(!if_foo_exists<WithOutFoo>::value);
+    static_assert(if_foo_exists<WithFoo>::value);
+    using T  = std::void_t<void>;
     return 0;
 }
