@@ -14,17 +14,15 @@ template <typename T> struct isLoggingSupported: std::false_type{};
 template <typename T> struct isLoggingSupported<vector<T>>: std::true_type{};
 
 template <typename Container>
-std::enable_if_t< isLoggingSupported<Container>::value, void> 
-log(const Container & c){
-    using T = typename Container::value_type;
-    copy(c.cbegin(), c.cend(), ostream_iterator<T>(cout,","));
-    cout<<endl;
-}
-
-template <typename Container>
-std::enable_if_t< !isLoggingSupported<Container>::value, void> 
-log(const Container & c){
-    cout<<"Logging not implemented "<<endl;
+void log(const Container& c){
+    if constexpr(isLoggingSupported<Container>::value){
+        using T = typename Container::value_type;
+        copy(c.begin(), c.end(), ostream_iterator<T>(cout,","));
+        cout<<endl;
+    }
+    else{
+        cout<<"logging not implemented "<<endl;
+    }
 }
 
 

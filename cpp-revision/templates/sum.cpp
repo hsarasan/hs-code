@@ -4,17 +4,6 @@
 
 using namespace std;
 
-/*
-template <typename T>
-T minc(T arg1, T arg2){
-
-    return arg1<arg2?arg1:arg2;
-
-}
-*/
-
-
-
 template <typename T, typename... Args>
 T sum(T a, Args... args)
 {
