@@ -33,11 +33,17 @@ void log (const C & c){
     cout<<endl;
 } ;
 
+template <typename T>
+void log(const T & t){
+    cout<<"Logging not implemented for this type "<<endl;
+}
+
 
 int main(){
     vector<int> v{1,2,3,4};
     map<int,string> m{ {1,"one"},{2,"two"}};
     log(v);
     log(m);
+    log("abc");
     return 0;
 }
