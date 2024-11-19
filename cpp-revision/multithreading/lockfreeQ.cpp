@@ -8,6 +8,7 @@
 #include <functional>
 #include <chrono>
 #include <mutex>
+#include <cassert>
 
 using namespace std;
 
@@ -21,6 +22,7 @@ class SPMCQ{
         explicit SPMCQ(): buffer(Capacity){
             reader_position.store(0);
             size.store(0);
+            writer_position.store(0);
         }
         bool isQFull(){
             return (size.load(memory_order_acquire)==Capacity);
@@ -32,11 +34,11 @@ class SPMCQ{
             if (isQFull()){
                 return false;
             }
-            int read_position=reader_position.load(memory_order_acquire);
+            int current_write_position = writer_position.load(memory_order_acquire);
             int current_size = size.load(memory_order_acquire);
-            int write_position=(current_size+read_position)%Capacity;
-            buffer[write_position]=value;
+            buffer[current_write_position]=value;
             size.store(current_size+1,memory_order_release);
+            writer_position.store((current_write_position+1)%Capacity,memory_order_release);
             return true;
         }
 
@@ -58,33 +60,43 @@ class SPMCQ{
         }
     private:
         vector<T> buffer;
+        atomic<size_t> writer_position;
         atomic<size_t> reader_position;
         atomic<size_t> size;
       
 };
 
+
+mutex m;
+vector<int> results;
+int N=1000;
+atomic<bool> done{false};
+
 void producer(SPMCQ<int>& queue) {
-    for (int i = 1; i <= 100; ++i) {
+    for (int i = 0; i < N; ++i) {
         while (!queue.enqueue(i)) {
             std::this_thread::yield(); // Wait until the queue has space
         }
-        //std::cout << "Produced: " << i << "\n";
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Simulate work
     }
 }
 
-mutex m;
 void consumer(SPMCQ<int>& queue, int id) {
-    while (true) {
+    while (!done.load()) {
         auto item = queue.dequeue();
         if (item) {
             lock_guard<mutex> lg(m);
             std::cout << "Consumer " << id << " consumed: " << *item << "\n";
+            results.push_back(*item);
         } else {
             std::this_thread::yield(); // Wait until the queue has items
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(150)); // Simulate work
     }
+}
+
+void analyzeresults(){
+    cout<<results.size()<<" "<<N<<endl;
+    assert(results.size()==N);
 }
 
 int main(){
@@ -97,8 +109,9 @@ int main(){
       consumer_threads.emplace_back(consumer, std::ref(Q), i + 1);
     }
     producer_thread.join();
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    done.store(true);
     for_each(consumer_threads.begin(), consumer_threads.end(), std::mem_fn(std::thread::detach));
+    analyzeresults();
     return 0;
 
 }
