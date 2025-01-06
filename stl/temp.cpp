@@ -1,17 +1,10 @@
-#include <iostream>
-#include <forward_list>
-#include <algorithm>
-#include <numeric>
-#include <iterator>
-#include <vector>
+#include <bits/stdc++.h>
+
+using namespace std;
 
 int main(){
-    std::vector<int> v{1,2,3,4,5,7,9};
-    auto it = std::lower_bound(v.begin(), v.end(), 4);
-    auto it2 = std::upper_bound(v.begin(), v.end(), 4);
-    std::cout<<*it<<" "<<*it2<<std::endl;
-    it = std::lower_bound(v.begin(), v.end(), 6);
-    it2 = std::upper_bound(v.begin(), v.end(), 6);
-    std::cout<<*it<<" "<<*it2<<std::endl;
+    vector<int> v{1,2,3,4,4,4,5,7,8};
+    auto range=equal_range(v.begin(),v.end(),4);
+    cout<<distance(range.first,range.second);
+    return 0;
 }
-
