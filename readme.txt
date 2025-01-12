@@ -46,6 +46,7 @@ Some of the interesting personal projects (all developed in C++)
     - FAQs for an expert C++ programmer
     - boost FAQs 
     - 300 Algorithms solved and explained
+    - Dynamic Programming explained (with 50 solved questions)
 
  open source contribution
     - contributed to zeroMQ
