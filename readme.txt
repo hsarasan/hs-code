@@ -4,13 +4,13 @@ Over 13 years of experience developing low latency financial trading / derivativ
 Over 20 years of experience developing enterprise software
 
 Experience in designing and developing complex software systems
-Technical leadership and mentoring of teams of varied sizes
+Provided technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
     - Programming Languages: C++ (upto C++23). 
     - Operating System - Linux and a lot Unix variants
     - Distributed Systems - Kafka, zeroMQ, AMQ
-    - databases - mongoDB, Oracle, redis, memcached
+    - databases - Oracle, redis, memcached
     - Networking - TCP/IP, UDP
     - Scripting - Unix Scripting
     - Testing - gtest, catch
@@ -36,7 +36,7 @@ Some of the interesting personal projects (all developed in C++)
     - a custom efficient memory allocator
     - a derivative pricing and greeks library
 
- All the above are free to be downloaded and used from my github (projects)
+     All the above are free to be downloaded and used from my github (projects)
 
  Semi commercial personal projects
     - a website for creating and storing flashcards (aimed at students)  
@@ -45,8 +45,7 @@ Some of the interesting personal projects (all developed in C++)
  eBooks
     - FAQs for an expert C++ programmer
     - boost FAQs 
-    - 300 Algorithms solved and explained
-    - Dynamic Programming explained (with 50 solved questions)
+    - 50 Dynamic Programming explained 
 
  open source contribution
     - contributed to zeroMQ
