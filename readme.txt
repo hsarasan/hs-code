@@ -4,7 +4,7 @@ Over 13 years of experience developing low latency financial trading / derivativ
 Over 20 years of experience developing enterprise software
 
 Experience in designing and developing complex software systems
-Technical leadership and mentoring 
+Technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
     - Programming Languages: C++ (upto C++23). 
