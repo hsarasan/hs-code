@@ -40,7 +40,7 @@ Some of the interesting personal projects (all developed in C++)
 
  Semi commercial personal projects
     - a website for creating and storing flashcards (aimed at students)  
-    - stock price signal generator using redis   
+    - stock price signal generator using C++,redis   
 
  eBooks
     - FAQs for an expert C++ programmer
