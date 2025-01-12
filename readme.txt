@@ -18,6 +18,7 @@ Techncial Expertise
 Special interests topics
     - Low latency programming   
     - Generic Programming
+    - wait free and lock free programming
 
 Domain Expertise    
     - Low latency programming 
@@ -38,7 +39,8 @@ Some of the interesting personal projects (all developed in C++)
  All the above are free to be downloaded and used from my github (projects)
 
  Semi commercial personal projects
-    - a website for creating and storing flashcards (aimed at students)     
+    - a website for creating and storing flashcards (aimed at students)  
+    - stock price signal generator using redis   
 
  eBooks
     - FAQs for an expert C++ programmer
