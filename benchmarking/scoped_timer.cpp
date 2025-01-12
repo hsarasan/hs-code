@@ -25,8 +25,8 @@ public:
 template <typename Container>
 void fill_and_add(Container v){
     scoped_timer timer(__func__);
+    std::iota(v.begin(), v.end(), 0);
     for (int i=0; i<1000; ++i){
-        std::iota(v.begin(), v.end(), 0);
         auto sum=std::accumulate(v.begin(), v.end(), 0);     
     }
 }
