@@ -37,6 +37,9 @@ Some of the interesting personal projects (all developed in C++)
 
  All the above are free to be downloaded and used from my github (projects)
 
+ Semi commercial personal projects
+    - a website for creating and storing flashcards (aimed at students)     
+
  eBooks
     - FAQs for an expert C++ programmer
     - boost FAQs 
@@ -46,3 +49,6 @@ Some of the interesting personal projects (all developed in C++)
     - contributed to zeroMQ
     - contributed to quantlib 
     - contributor for c++ stack overflow
+
+other activities
+    - runs a daily C++ programming challenge newsletter
