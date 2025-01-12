@@ -1,4 +1,4 @@
-Primarily a high end C++ programmer
+An expert C++ programmer (I think!)
 
 Over 13 years of experience developing low latency financial trading / derivative pricing & risk software
 Over 20 years of experience developing enterprise software
