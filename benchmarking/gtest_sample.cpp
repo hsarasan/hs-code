@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
 
+/* build command => 
+g++ -std=c++17 -I C:\cppcode\code\googletest\googletest\include .\gtest_sample.cpp -lgtest -L.
+*/
+
 // Function to be tested
 int Add(int a, int b) {
     return a + b;
