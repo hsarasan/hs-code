@@ -2,7 +2,7 @@
 
 void func(std::byte *stack_begining){
     std::byte data[1024];
-    std::cout<<data-stack_begining<<std::endl;
+    std::cout<<stack_begining-data<<std::endl;
     func(stack_begining);
 }
 
