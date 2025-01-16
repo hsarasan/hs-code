@@ -1,4 +1,5 @@
 An expert C++ programmer (I think!)
+But also consider myself an expert in Rust & Python. (Just that C++ is the first love)
 
 Over 13 years of experience developing low latency financial trading / derivative pricing & risk software
 Over 20 years of experience developing enterprise software
@@ -7,9 +8,9 @@ Experience in designing and developing complex software systems
 Provided technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
-    - Programming Languages: C++ (upto C++23). 
+    - Programming Languages: C++ (upto C++23), rust, python
     - Operating System - Linux and a lot Unix variants
-    - Distributed Systems - Kafka, zeroMQ, AMQ
+    - Distributed Systems - kafka, zeroMQ, rabbitmq
     - databases - Oracle, redis, memcached
     - Networking - TCP/IP, UDP
     - Scripting - Unix Scripting
@@ -18,6 +19,7 @@ Techncial Expertise
 Special interests topics
     - Low latency programming   
     - Generic Programming
+    - distributed computing
     - wait free and lock free programming
 
 Domain Expertise    
@@ -50,7 +52,7 @@ Some of the interesting personal projects (all developed in C++)
  open source contribution
     - contributed to zeroMQ
     - contributed to quantlib 
-    - contributor for c++ stack overflow
+    - contributor for c++ & rust stack overflow
 
 other activities
     - runs a daily C++ programming challenge newsletter
