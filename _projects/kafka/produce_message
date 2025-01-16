@@ -1,0 +1,1 @@
+/usr/local/kafka/bin/kafka-console-producer.sh --topic test-topic --bootstrap-server localhost:9092
