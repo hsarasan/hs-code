@@ -15,9 +15,9 @@ generated the cc file and tried to compile producer.cpp and consumer.cpp
 
 There started many hours of getting to link
 
-Finally I found this command - 
-
-pkg-config --libs --static protobuf 
+Finally I found this command -  => pkg-config --libs --static protobuf 
 
 Life saver ! I generated the shared libraries and linker flags to build everything
+
+So I have added this to CMakeLists.txt
 
