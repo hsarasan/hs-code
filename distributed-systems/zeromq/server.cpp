@@ -1,4 +1,5 @@
 #include <zmq.hpp>
+#include <zmq.h>
 #include <string>
 #include <iostream>
 #include <thread>
@@ -8,6 +9,13 @@ int main() {
     // Prepare the ZeroMQ context and publisher socket
     zmq::context_t context(1);
     zmq::socket_t publisher(context, zmq::socket_type::pub);
+
+
+		std::cout<<"ZMQ_VERSION "<<ZMQ_VERSION<<std::endl;
+    zmq::socket_t curve_server(context, zmq::socket_type::router);
+    std::cout<<"has_curve="<<zmq_has("curve")<<std::endl;
+    std::cout<<"has_tls="<<zmq_has("tls")<<std::endl;
+
 
     // Bind the publisher to a TCP port
     publisher.bind("tcp://*:5555");
