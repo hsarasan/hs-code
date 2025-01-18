@@ -1,21 +1,28 @@
+cmake_minimum_required(VERSION 3.10)
+project(ZeroMQProtobufExample)
+
 set(CMAKE_CXX_STANDARD 17)
 
-# Find pkg-config
+# Find dependencies (ZeroMQ and Protobuf)
 find_package(PkgConfig REQUIRED)
-
-# Use pkg-config to find Protobuf
 pkg_check_modules(Protobuf REQUIRED protobuf)
-include_directories(${Protobuf_INCLUDE_DIRS})
+
+
+find_package(ZeroMQ REQUIRED)
+pkg_check_modules(ZeroMQ REQUIRED libzmq)
+
+# Include the directories for ZeroMQ and Protobuf
+include_directories(${Protobuf_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIRS} include)
 link_directories(${Protobuf_LIBRARY_DIRS})
 
 # Avoid RPATH issues on some systems
 add_definitions(${Protobuf_CFLAGS_OTHER})
 
-# Path to the .proto file
+# Set the path to the .proto file
 set(PROTO_FILE ${CMAKE_SOURCE_DIR}/message.proto)
 set(GENERATED_FILES ${CMAKE_BINARY_DIR}/message.pb.cc ${CMAKE_BINARY_DIR}/message.pb.h)
 
-# Add a custom command to run protoc
+# Add a custom command to run protoc and generate .pb.cc and .pb.h files
 add_custom_command(
     OUTPUT ${GENERATED_FILES}
     COMMAND protoc --proto_path=${CMAKE_SOURCE_DIR} --cpp_out=${CMAKE_BINARY_DIR} ${PROTO_FILE}
@@ -24,22 +31,19 @@ add_custom_command(
     VERBATIM
 )
 
-# Add a custom target to trigger the command
+# Add a custom target to ensure protoc is run before building
 add_custom_target(GenerateProtobuf ALL DEPENDS ${GENERATED_FILES})
 
 # Include the directory with the generated files
 include_directories(${CMAKE_BINARY_DIR})
 
-# Add the producer executable
+
+# Create the producer executable
 add_executable(producer producer.cpp ${GENERATED_FILES})
 add_dependencies(producer GenerateProtobuf)
+target_link_libraries(producer ${ZeroMQ_LIBRARIES} ${Protobuf_LIBRARIES})
 
-# Link the Protobuf library
-target_link_libraries(producer ${Protobuf_LIBRARIES})
-
-# Add the consumer executable
+# Create the consumer executable
 add_executable(consumer consumer.cpp ${GENERATED_FILES})
 add_dependencies(consumer GenerateProtobuf)
-
-# Link the Protobuf library
-target_link_libraries(consumer ${Protobuf_LIBRARIES})
+target_link_libraries(consumer ${ZeroMQ_LIBRARIES} ${Protobuf_LIBRARIES})
