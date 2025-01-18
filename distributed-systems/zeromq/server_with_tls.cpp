@@ -37,7 +37,7 @@ int main() {
             zmq::message_t request;
 
             // Wait for a message from a client
-            server_socket.recv(request, zmq::recv_flags::none);
+            auto ret=server_socket.recv(request, zmq::recv_flags::none);
 
             // Print the received message
             std::string received_message(static_cast<char*>(request.data()), request.size());
