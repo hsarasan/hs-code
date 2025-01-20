@@ -64,6 +64,13 @@
       transform: rotateY(180deg); /* Rotate the back side 180 degrees */
     }
 
+    /* Preserve line breaks and whitespace */
+    .side p {
+      white-space: pre-wrap; /* This allows line breaks and multiple spaces to be preserved */
+      word-wrap: break-word; /* This makes sure text will break inside the container if too long */
+      margin: 0;
+    }
+
     /* Button container style */
     .button-container {
       display: flex;
@@ -115,13 +122,11 @@
       <div class="card" id="flashcard">
         <!-- Front side (Question) -->
         <div class="side front">
-          <strong>Question:</strong>
           <p><%= currentFlashcard.question %></p>
         </div>
         
         <!-- Back side (Answer) -->
         <div class="side back">
-          <strong>Answer:</strong>
           <p><%= currentFlashcard.answer %></p>
         </div>
       </div>
