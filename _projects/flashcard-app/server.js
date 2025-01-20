@@ -1,7 +1,9 @@
 const express = require('express');
-const path = require('path');  // Import the path module
+const path = require('path');
 const { Pool } = require('pg');
 const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
 require('dotenv').config();
 
 const app = express();
@@ -14,10 +16,88 @@ const pool = new Pool({
 });
 
 // Middleware to parse JSON request bodies
-app.use(express.json());  // Handle JSON bodies
-
-// Serve static files (like HTML, CSS, JS)
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Session middleware
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+}));
+
+// Passport setup
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+// Google OAuth strategy
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: 'http://localhost:3000/auth/google/callback',
+}, (accessToken, refreshToken, profile, done) => {
+  return done(null, profile);
+}));
+
+// Passport session middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Routes
+app.get('/', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.redirect('/landing');
+  } else {
+    res.sendFile(path.join(__dirname, 'public', 'index.html')); // Show login page if not authenticated
+  }
+});
+
+// Google login route
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
+
+// Google callback route
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+  res.redirect('/landing'); // Redirect to the landing page after successful login
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.logout((err) => {
+    res.redirect('/');
+  });
+});
+
+// Landing Page route
+app.get('/landing', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+  } else {
+    res.redirect('/');
+  }
+});
+
+// Create Flashcard Page
+app.get('/create-page', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.sendFile(path.join(__dirname, 'public', 'create.html'));
+  } else {
+    res.redirect('/');
+  }
+});
+
+// Retrieve Flashcard Page
+app.get('/retrieve-page', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.sendFile(path.join(__dirname, 'public', 'retrieve.html'));
+  } else {
+    res.redirect('/');
+  }
+});
 
 // POST endpoint to create a new flashcard
 app.post('/flashcards', (req, res) => {
@@ -35,7 +115,7 @@ app.post('/flashcards', (req, res) => {
         console.error('Error inserting flashcard', err.stack);
         return res.status(500).json({ error: 'Failed to create flashcard' });
       }
-      res.status(201).json(result.rows[0]);  // Return the newly created flashcard
+      res.status(201).json(result.rows[0]); 
     }
   );
 });
@@ -47,13 +127,8 @@ app.get('/flashcards', (req, res) => {
       console.error('Error retrieving flashcards', err.stack);
       return res.status(500).json({ error: 'Failed to retrieve flashcards' });
     }
-    res.status(200).json(result.rows);  // Return all flashcards
+    res.status(200).json(result.rows); 
   });
-});
-
-// Default route to serve the HTML file
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Serve the index.html
 });
 
 // Start the server

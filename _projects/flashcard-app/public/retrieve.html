@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retrieve Flashcards</title>
+</head>
+<body>
+  <h1>Flashcards</h1>
+  <div id="flashcard-container">
+    <!-- Flashcard content will be displayed here -->
+  </div>
+  
+  <button id="prev-btn">Previous</button>
+  <button id="next-btn">Next</button>
+  <button id="done-btn">Done</button>
+  
+  <script>
+    // Fetch flashcards from the server
+    fetch('/flashcards')
+      .then(response => response.json())
+      .then(data => {
+        let currentIndex = 0;
+
+        // Display the first flashcard
+        function displayFlashcard(index) {
+          const flashcard = data[index];
+          document.getElementById('flashcard-container').innerHTML = `
+            <p><strong>Question:</strong> ${flashcard.question}</p>
+            <p><strong>Answer:</strong> ${flashcard.answer}</p>
+          `;
+        }
+
+        // Initially display the first flashcard
+        displayFlashcard(currentIndex);
+
+        // Handle next and previous buttons
+        document.getElementById('next-btn').addEventListener('click', () => {
+          if (currentIndex < data.length - 1) {
+            currentIndex++;
+            displayFlashcard(currentIndex);
+          }
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+          if (currentIndex > 0) {
+            currentIndex--;
+            displayFlashcard(currentIndex);
+          }
+        });
+
+        // Handle done button (redirect to landing page or logout)
+        document.getElementById('done-btn').addEventListener('click', () => {
+          window.location.href = '/landing';  // Go back to the landing page or logout
+        });
+      })
+      .catch(error => console.error('Error fetching flashcards:', error));
+  </script>
+</body>
+</html>
+
