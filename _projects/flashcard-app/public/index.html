@@ -5,9 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flashcard App</title>
   <style>
-    /* Simple styling to switch between forms */
-    #create-form, #flashcards-list {
+    /* Simple styling to switch between pages */
+    .page {
       display: none;
+    }
+
+    /* Centralize the content */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
     }
 
     textarea {
@@ -24,51 +59,50 @@
   </style>
 </head>
 <body>
-  <h1>Flashcard App</h1>
+  <div id="home-page" class="page container">
+    <h1>Flashcard App</h1>
+    <button id="show-create-form">Create Flashcards</button>
+    <button id="show-flashcards">Show Flashcards</button>
+  </div>
 
-  <!-- Navigation options -->
-  <button id="show-create-form">Create Flashcards</button>
-  <button id="show-flashcards">Show Flashcards</button>
-
-  <!-- Flashcard Creation Form -->
-  <div id="create-form">
+  <div id="create-page" class="page container">
     <h2>Create a Flashcard</h2>
     <form id="flashcard-form">
       <div class="form-section">
-        <label for="question">Question (max 80 characters per line, multi-line allowed):</label><br>
-        <textarea id="question" rows="4" maxlength="640" placeholder="Enter your question here..." required></textarea>
+        <label for="question">Question (max 80 characters per line, 2 lines max):</label><br>
+        <textarea id="question" rows="2" maxlength="160" placeholder="Enter your question here..." required></textarea>
       </div>
       <div class="form-section">
-        <label for="answer">Answer (max 40 lines of 80 characters):</label><br>
-        <textarea id="answer" rows="16" maxlength="3200" placeholder="Enter your answer here..." required></textarea>
+        <label for="answer">Answer (max 10 lines of 80 characters each):</label><br>
+        <textarea id="answer" rows="10" maxlength="800" placeholder="Enter your answer here..." required></textarea>
       </div>
-      <button type="submit">Create Flashcard</button>
+      <button type="submit">Save Flashcard</button>
     </form>
+    <button id="back-to-home-from-create">Back to Home</button>
   </div>
 
-  <!-- Flashcards List -->
-  <div id="flashcards-list">
+  <div id="retrieve-page" class="page container">
     <h2>Flashcards</h2>
     <ul id="flashcards-list-ul">
       <!-- Flashcards will be displayed here -->
     </ul>
+    <button id="back-to-home-from-retrieve">Done</button>
   </div>
 
   <script>
-    // Switch to create flashcards form
+    // Show Home page
     document.getElementById('show-create-form').addEventListener('click', () => {
-      document.getElementById('create-form').style.display = 'block';
-      document.getElementById('flashcards-list').style.display = 'none';
+      document.getElementById('home-page').style.display = 'none';
+      document.getElementById('create-page').style.display = 'block';
     });
 
-    // Switch to flashcards list
     document.getElementById('show-flashcards').addEventListener('click', () => {
-      document.getElementById('create-form').style.display = 'none';
-      document.getElementById('flashcards-list').style.display = 'block';
+      document.getElementById('home-page').style.display = 'none';
+      document.getElementById('retrieve-page').style.display = 'block';
       loadFlashcards();  // Load flashcards when showing the list
     });
 
-    // Create a new flashcard
+    // Show Create Flashcard form and save data
     document.getElementById('flashcard-form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const question = document.getElementById('question').value;
@@ -87,9 +121,25 @@
       } else {
         alert('Failed to create flashcard');
       }
+
+      // After saving, go back to home
+      document.getElementById('create-page').style.display = 'none';
+      document.getElementById('home-page').style.display = 'block';
     });
 
-    // Function to load all flashcards
+    // Go back to Home page from Create Flashcard page
+    document.getElementById('back-to-home-from-create').addEventListener('click', () => {
+      document.getElementById('create-page').style.display = 'none';
+      document.getElementById('home-page').style.display = 'block';
+    });
+
+    // Go back to Home page from Retrieve Flashcard page
+    document.getElementById('back-to-home-from-retrieve').addEventListener('click', () => {
+      document.getElementById('retrieve-page').style.display = 'none';
+      document.getElementById('home-page').style.display = 'block';
+    });
+
+    // Load and display flashcards
     async function loadFlashcards() {
       const response = await fetch('/flashcards');
       const flashcards = await response.json();
@@ -102,6 +152,9 @@
         flashcardsList.appendChild(listItem);
       });
     }
+
+    // Initialize the Home Page to be visible
+    document.getElementById('home-page').style.display = 'block';
   </script>
 </body>
 </html>
