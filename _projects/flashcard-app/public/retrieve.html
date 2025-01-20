@@ -4,16 +4,71 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retrieve Flashcards</title>
+  <style>
+    /* Basic styling to center the content */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      width: 60%;
+    }
+
+    .flashcard-box {
+      width: 80%;
+      margin: 20px 0;
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      box-sizing: border-box;
+      word-wrap: break-word;
+      white-space: pre-wrap; /* Preserve line breaks */
+      font-family: monospace;
+      text-align: left;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-  <h1>Flashcards</h1>
-  <div id="flashcard-container">
-    <!-- Flashcard content will be displayed here -->
+  <div class="container">
+    <h1>Flashcards</h1>
+    <div id="flashcard-container" class="flashcard-box">
+      <!-- Flashcard content will be displayed here -->
+    </div>
+    
+    <div>
+      <button id="prev-btn">Previous</button>
+      <button id="next-btn">Next</button>
+      <button id="done-btn">Done</button>
+    </div>
   </div>
-  
-  <button id="prev-btn">Previous</button>
-  <button id="next-btn">Next</button>
-  <button id="done-btn">Done</button>
   
   <script>
     // Fetch flashcards from the server
