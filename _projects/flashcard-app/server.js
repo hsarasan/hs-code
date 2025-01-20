@@ -41,7 +41,9 @@ passport.use(new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: 'http://localhost:3000/auth/google/callback',
 }, (accessToken, refreshToken, profile, done) => {
-  return done(null, profile);
+  const googleId = profile.id; // Extract Google ID from the profile
+  const user = { google_id: googleId, displayName: profile.displayName }; // Customize as needed
+  return done(null, user); // Pass user object to serializeUser
 }));
 
 // Passport session middleware
@@ -103,13 +105,19 @@ app.get('/retrieve-page', (req, res) => {
 app.post('/flashcards', (req, res) => {
   const { question, answer } = req.body;
 
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Unauthorized: User not authenticated' });
+  }
+
+  const googleId = req.user.google_id; // Extract google_id from session
+
   if (!question || !answer) {
     return res.status(400).json({ error: 'Question and answer are required' });
   }
 
   pool.query(
-    'INSERT INTO flashcards (question, answer) VALUES ($1, $2) RETURNING *',
-    [question, answer],
+    'INSERT INTO flashcards (google_id, question, answer) VALUES ($1, $2, $3) RETURNING *',
+    [googleId, question, answer],
     (err, result) => {
       if (err) {
         console.error('Error inserting flashcard', err.stack);
@@ -120,15 +128,25 @@ app.post('/flashcards', (req, res) => {
   );
 });
 
-// GET endpoint to retrieve all flashcards
+// GET endpoint to retrieve all flashcards for the logged-in user
 app.get('/flashcards', (req, res) => {
-  pool.query('SELECT * FROM flashcards', (err, result) => {
-    if (err) {
-      console.error('Error retrieving flashcards', err.stack);
-      return res.status(500).json({ error: 'Failed to retrieve flashcards' });
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Unauthorized: User not authenticated' });
+  }
+
+  const googleId = req.user.google_id; // Get user's google_id
+
+  pool.query(
+    'SELECT * FROM flashcards WHERE google_id = $1',
+    [googleId],
+    (err, result) => {
+      if (err) {
+        console.error('Error retrieving flashcards', err.stack);
+        return res.status(500).json({ error: 'Failed to retrieve flashcards' });
+      }
+      res.status(200).json(result.rows); // Return only the user's flashcards
     }
-    res.status(200).json(result.rows); 
-  });
+  );
 });
 
 // Start the server
