@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retrieve Flashcards</title>
   <style>
-    /* Basic styling to center the content */
     body {
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
       background-color: #f0f0f0;
+      margin: 0;
     }
 
     .container {
@@ -25,18 +24,37 @@
       width: 60%;
     }
 
-    .flashcard-box {
-      width: 80%;
+    .flashcard {
+      width: 100%;
+      height: 200px;
+      position: relative;
       margin: 20px 0;
+      transform-style: preserve-3d;
+      transform: rotateY(0);
+      transition: transform 0.6s;
+    }
+
+    .flashcard .front,
+    .flashcard .back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      backface-visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       padding: 20px;
-      border: 2px solid #ddd;
+      font-size: 18px;
       border-radius: 8px;
       background-color: #f9f9f9;
       box-sizing: border-box;
-      word-wrap: break-word;
-      white-space: pre-wrap; /* Preserve line breaks */
-      font-family: monospace;
-      text-align: left;
+    }
+
+    .flashcard .back {
+      transform: rotateY(180deg);
+      background-color: #f0f0f0;
     }
 
     button {
@@ -54,62 +72,101 @@
     button:hover {
       background-color: #45a049;
     }
+
+    .navigation-buttons {
+      margin-top: 20px;
+    }
+
+    .navigation-buttons button {
+      margin: 0 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Flashcards</h1>
-    <div id="flashcard-container" class="flashcard-box">
-      <!-- Flashcard content will be displayed here -->
+    <h2>Flashcards</h2>
+    <div class="flashcard" id="flashcard">
+      <div class="front" id="flashcard-front">
+        <!-- Flashcard front content (question) -->
+        <p id="flashcard-question"></p>
+      </div>
+      <div class="back" id="flashcard-back">
+        <!-- Flashcard back content (answer) -->
+        <p id="flashcard-answer"></p>
+      </div>
     </div>
-    
-    <div>
-      <button id="prev-btn">Previous</button>
-      <button id="next-btn">Next</button>
-      <button id="done-btn">Done</button>
+
+    <div class="navigation-buttons">
+      <button id="prev-card" disabled>Prev</button>
+      <button id="flip-card">Flip</button>
+      <button id="next-card" disabled>Next</button>
     </div>
+
+    <button id="done" style="margin-top: 20px;">Done</button>
   </div>
-  
+
   <script>
-    // Fetch flashcards from the server
-    fetch('/flashcards')
-      .then(response => response.json())
-      .then(data => {
-        let currentIndex = 0;
+    // Placeholder for flashcards
+    let flashcards = [];
+    let currentCardIndex = 0;
 
-        // Display the first flashcard
-        function displayFlashcard(index) {
-          const flashcard = data[index];
-          document.getElementById('flashcard-container').innerHTML = `
-            <p><strong>Question:</strong> ${flashcard.question}</p>
-            <p><strong>Answer:</strong> ${flashcard.answer}</p>
-          `;
-        }
+    // Function to load flashcards from the server
+    async function loadFlashcards() {
+      const response = await fetch('/flashcards');
+      flashcards = await response.json();
+      currentCardIndex = 0;
 
-        // Initially display the first flashcard
-        displayFlashcard(currentIndex);
+      if (flashcards.length > 0) {
+        showFlashcard();
+        document.getElementById('next-card').disabled = false;
+      } else {
+        document.getElementById('flashcard-question').textContent = 'No flashcards available.';
+        document.getElementById('prev-card').disabled = true;
+        document.getElementById('next-card').disabled = true;
+      }
+    }
 
-        // Handle next and previous buttons
-        document.getElementById('next-btn').addEventListener('click', () => {
-          if (currentIndex < data.length - 1) {
-            currentIndex++;
-            displayFlashcard(currentIndex);
-          }
-        });
+    // Function to display the flashcard
+    function showFlashcard() {
+      const flashcard = flashcards[currentCardIndex];
+      document.getElementById('flashcard-question').textContent = `Q: ${flashcard.question}`;
+      document.getElementById('flashcard-answer').textContent = `A: ${flashcard.answer}`;
+      document.getElementById('flashcard').style.transform = 'rotateY(0deg)'; // Reset flip on new card
 
-        document.getElementById('prev-btn').addEventListener('click', () => {
-          if (currentIndex > 0) {
-            currentIndex--;
-            displayFlashcard(currentIndex);
-          }
-        });
+      // Disable Prev and Next buttons based on the card index
+      document.getElementById('prev-card').disabled = currentCardIndex === 0;
+      document.getElementById('next-card').disabled = currentCardIndex === flashcards.length - 1;
+    }
 
-        // Handle done button (redirect to landing page or logout)
-        document.getElementById('done-btn').addEventListener('click', () => {
-          window.location.href = '/landing';  // Go back to the landing page or logout
-        });
-      })
-      .catch(error => console.error('Error fetching flashcards:', error));
+    // Event listener for the "Prev" button
+    document.getElementById('prev-card').addEventListener('click', () => {
+      if (currentCardIndex > 0) {
+        currentCardIndex--;
+        showFlashcard();
+      }
+    });
+
+    // Event listener for the "Next" button
+    document.getElementById('next-card').addEventListener('click', () => {
+      if (currentCardIndex < flashcards.length - 1) {
+        currentCardIndex++;
+        showFlashcard();
+      }
+    });
+
+    // Event listener for the "Flip" button
+    document.getElementById('flip-card').addEventListener('click', () => {
+      const flashcardElement = document.getElementById('flashcard');
+      flashcardElement.style.transform = flashcardElement.style.transform === 'rotateY(180deg)' ? 'rotateY(0deg)' : 'rotateY(180deg)';
+    });
+
+    // Event listener for the "Done" button
+    document.getElementById('done').addEventListener('click', () => {
+      window.location.href = '/landing';  // Redirect to the landing page
+    });
+
+    // Load flashcards on page load
+    loadFlashcards();
   </script>
 </body>
 </html>
