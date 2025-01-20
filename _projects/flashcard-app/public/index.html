@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard App</title>
+  <style>
+    /* Simple styling to switch between forms */
+    #create-form, #flashcards-list {
+      display: none;
+    }
+
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      font-size: 16px;
+      resize: vertical;
+    }
+
+    .form-section {
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Flashcard App</h1>
+
+  <!-- Navigation options -->
+  <button id="show-create-form">Create Flashcards</button>
+  <button id="show-flashcards">Show Flashcards</button>
+
+  <!-- Flashcard Creation Form -->
+  <div id="create-form">
+    <h2>Create a Flashcard</h2>
+    <form id="flashcard-form">
+      <div class="form-section">
+        <label for="question">Question (max 80 characters per line, multi-line allowed):</label><br>
+        <textarea id="question" rows="4" maxlength="640" placeholder="Enter your question here..." required></textarea>
+      </div>
+      <div class="form-section">
+        <label for="answer">Answer (max 40 lines of 80 characters):</label><br>
+        <textarea id="answer" rows="16" maxlength="3200" placeholder="Enter your answer here..." required></textarea>
+      </div>
+      <button type="submit">Create Flashcard</button>
+    </form>
+  </div>
+
+  <!-- Flashcards List -->
+  <div id="flashcards-list">
+    <h2>Flashcards</h2>
+    <ul id="flashcards-list-ul">
+      <!-- Flashcards will be displayed here -->
+    </ul>
+  </div>
+
+  <script>
+    // Switch to create flashcards form
+    document.getElementById('show-create-form').addEventListener('click', () => {
+      document.getElementById('create-form').style.display = 'block';
+      document.getElementById('flashcards-list').style.display = 'none';
+    });
+
+    // Switch to flashcards list
+    document.getElementById('show-flashcards').addEventListener('click', () => {
+      document.getElementById('create-form').style.display = 'none';
+      document.getElementById('flashcards-list').style.display = 'block';
+      loadFlashcards();  // Load flashcards when showing the list
+    });
+
+    // Create a new flashcard
+    document.getElementById('flashcard-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const question = document.getElementById('question').value;
+      const answer = document.getElementById('answer').value;
+
+      const response = await fetch('/flashcards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, answer }),
+      });
+
+      if (response.ok) {
+        alert('Flashcard created successfully!');
+        document.getElementById('question').value = '';
+        document.getElementById('answer').value = '';
+      } else {
+        alert('Failed to create flashcard');
+      }
+    });
+
+    // Function to load all flashcards
+    async function loadFlashcards() {
+      const response = await fetch('/flashcards');
+      const flashcards = await response.json();
+      const flashcardsList = document.getElementById('flashcards-list-ul');
+      flashcardsList.innerHTML = '';  // Clear the existing list
+
+      flashcards.forEach(flashcard => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `Q: ${flashcard.question} | A: ${flashcard.answer}`;
+        flashcardsList.appendChild(listItem);
+      });
+    }
+  </script>
+</body>
+</html>
+
