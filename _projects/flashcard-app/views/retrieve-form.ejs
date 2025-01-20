@@ -1,0 +1,58 @@
+<form method="POST" action="/retrieve-flashcards">
+  <label for="subject">Subject:</label>
+  <select id="subject" name="subject">
+    <option value="">--Select Subject--</option>
+    <% subjects.forEach(subject => { %>
+      <option value="<%= subject %>"><%= subject %></option>
+    <% }); %>
+  </select>
+
+  <label for="topic">Topic:</label>
+  <select id="topic" name="topic">
+    <option value="">--Select Topic--</option>
+  </select>
+
+  <button type="submit">Retrieve Flashcards</button>
+</form>
+
+<script>
+  // Handle subject selection change
+  document.getElementById('subject').addEventListener('change', function() {
+    const selectedSubject = this.value;
+    const topicDropdown = document.getElementById('topic');
+
+    // Clear the previous topics
+    topicDropdown.innerHTML = '<option value="">--Select Topic--</option>';
+
+    if (selectedSubject) {
+      // Make an AJAX request to get topics for the selected subject
+      fetch('/get-topics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ subject: selectedSubject })
+      })
+      .then(response => response.json())
+      .then(topics => {
+        if (topics.length > 0) {
+          topics.forEach(topic => {
+            const option = document.createElement('option');
+            option.value = topic.topic;
+            option.textContent = topic.topic;
+            topicDropdown.appendChild(option);
+          });
+        } else {
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = 'No topics available';
+          topicDropdown.appendChild(option);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching topics:', error);
+      });
+    }
+  });
+</script>
+

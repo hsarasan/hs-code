@@ -22,6 +22,7 @@ const pool = new Pool({
 });
 
 // Middleware to parse JSON request bodies
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -135,27 +136,105 @@ app.post('/flashcards', (req, res) => {
 });
 
 app.get('/retrieve-page', (req, res) => {
-  // Retrieve flashcards from the DB
-  pool.query('SELECT * FROM flashcards WHERE google_id = $1', [req.user.google_id], (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to retrieve flashcards' });
-    }
-    
-    const flashcards = result.rows;
-    const totalFlashcards = flashcards.length;
-    
-    // Get the current index from the query parameters, defaulting to 0
-    let index = parseInt(req.query.index) || 0;
-    
-    // Ensure the index is within bounds
-    if (index < 0) index = 0;
-    if (index >= totalFlashcards) index = totalFlashcards - 1;
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ error: 'Unauthorized: User not authenticated' });
+  }
 
-    const currentFlashcard = flashcards[index];
-    
-    // Render the 'retrieve-page' view and pass the current flashcard and navigation buttons
-    res.render('retrieve-page', { flashcards, currentFlashcard, index, totalFlashcards });
-  });
+  const googleId = req.user.google_id;
+
+  // Query to get distinct subjects for the logged-in user
+  pool.query(
+    'SELECT DISTINCT subject FROM flashcards WHERE google_id = $1',
+    [googleId],
+    (err, result) => {
+      if (err) {
+        console.error('Error retrieving subjects:', err.stack);
+        return res.status(500).json({ error: 'Failed to retrieve subjects' });
+      }
+
+      // Render the retrieve-form.ejs view and pass subjects to it
+      res.render('retrieve-form', {
+        subjects: result.rows.map(row => row.subject),
+      });
+    }
+  );
+});
+
+app.get('/retrieve-topics', (req, res) => {
+  const { subject } = req.query;
+
+  if (!subject) {
+    return res.status(400).json({ error: 'Subject is required' });
+  }
+
+  const googleId = req.user.google_id;
+
+  // Query to get distinct topics for the selected subject and user
+  pool.query(
+    'SELECT DISTINCT topic FROM flashcards WHERE google_id = $1 AND subject = $2',
+    [googleId, subject],
+    (err, result) => {
+      if (err) {
+        console.error('Error retrieving topics:', err.stack);
+        return res.status(500).json({ error: 'Failed to retrieve topics' });
+      }
+
+      // Send the topics back as JSON
+      res.json({ topics: result.rows.map(row => row.topic) });
+    }
+  );
+});
+
+app.post('/get-topics', (req, res) => {
+  const { subject } = req.body;
+  const googleId = req.user.google_id; // Assuming user is logged in
+
+  // Query to get topics for the specific subject and user
+  pool.query(
+    'SELECT DISTINCT topic FROM flashcards WHERE google_id = $1 AND subject = $2',
+    [googleId, subject],
+    (err, result) => {
+      if (err) {
+        console.error('Error retrieving topics:', err.stack);
+        return res.status(500).json({ error: 'Failed to retrieve topics' });
+      }
+
+      // Send the topics as a JSON response
+      res.json(result.rows);
+    }
+  );
+});
+
+
+app.post('/retrieve-flashcards', (req, res) => {
+  const { subject, topic } = req.body;
+  console.log('subject & topic', subject, topic);
+
+  if (!subject || !topic) {
+    return res.status(400).json({ error: 'Subject and topic are required' });
+  }
+
+  const googleId = req.user.google_id;
+
+  // Query to retrieve flashcards for the selected subject and topic
+  pool.query(
+    'SELECT * FROM flashcards WHERE google_id = $1 AND subject = $2 AND topic = $3',
+    [googleId, subject, topic],
+    (err, result) => {
+      if (err) {
+        console.error('Error retrieving flashcards:', err.stack);
+        return res.status(500).json({ error: 'Failed to retrieve flashcards' });
+      }
+
+      // Render the flashcards page and pass the flashcards to it
+      res.render('flashcards', {
+        flashcards: result.rows,
+        subject: subject,
+        topic: topic,
+        currentFlashcardIndex: 0 // Set the starting flashcard index
+      });
+    }
+  );
 });
 
 // Start the server
