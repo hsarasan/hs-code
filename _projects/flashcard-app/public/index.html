@@ -27,6 +27,7 @@
       background-color: white;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
+      width: 60%;
     }
 
     button {
@@ -45,12 +46,22 @@
       background-color: #45a049;
     }
 
-    textarea {
+    /* Styling for the flashcard display area */
+    .flashcard-display {
       width: 100%;
+      height: 200px;
+      padding: 20px;
+      margin: 20px 0;
+      font-size: 18px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
       box-sizing: border-box;
-      padding: 10px;
-      font-size: 16px;
-      resize: vertical;
+      word-wrap: break-word;
+      white-space: pre-wrap; /* To preserve line breaks */
+      overflow-y: auto; /* Add vertical scrolling */
+      text-align: left;
+      font-family: monospace; /* To make it look like a code box */
     }
 
     .form-section {
@@ -83,9 +94,14 @@
 
   <div id="retrieve-page" class="page container">
     <h2>Flashcards</h2>
-    <ul id="flashcards-list-ul">
+    <div class="flashcard-display" id="flashcard-display">
       <!-- Flashcards will be displayed here -->
-    </ul>
+      <p id="flashcard-content"></p>
+    </div>
+    <div>
+      <button id="prev-card" disabled>Prev</button>
+      <button id="next-card" disabled>Next</button>
+    </div>
     <button id="back-to-home-from-retrieve">Done</button>
   </div>
 
@@ -140,18 +156,47 @@
     });
 
     // Load and display flashcards
+    let flashcards = [];
+    let currentCardIndex = 0;
+
     async function loadFlashcards() {
       const response = await fetch('/flashcards');
-      const flashcards = await response.json();
-      const flashcardsList = document.getElementById('flashcards-list-ul');
-      flashcardsList.innerHTML = '';  // Clear the existing list
+      flashcards = await response.json();
+      currentCardIndex = 0;  // Start with the first flashcard
 
-      flashcards.forEach(flashcard => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `Q: ${flashcard.question} | A: ${flashcard.answer}`;
-        flashcardsList.appendChild(listItem);
-      });
+      if (flashcards.length > 0) {
+        showFlashcard();
+        document.getElementById('next-card').disabled = false;
+      } else {
+        document.getElementById('flashcard-content').textContent = 'No flashcards available.';
+        document.getElementById('prev-card').disabled = true;
+        document.getElementById('next-card').disabled = true;
+      }
     }
+
+    function showFlashcard() {
+      const flashcard = flashcards[currentCardIndex];
+      document.getElementById('flashcard-content').textContent = `Q: ${flashcard.question}\nA: ${flashcard.answer}`;
+      
+      // Enable/Disable Prev and Next buttons based on the current card index
+      document.getElementById('prev-card').disabled = currentCardIndex === 0;
+      document.getElementById('next-card').disabled = currentCardIndex === flashcards.length - 1;
+    }
+
+    // Prev and Next button logic
+    document.getElementById('prev-card').addEventListener('click', () => {
+      if (currentCardIndex > 0) {
+        currentCardIndex--;
+        showFlashcard();
+      }
+    });
+
+    document.getElementById('next-card').addEventListener('click', () => {
+      if (currentCardIndex < flashcards.length - 1) {
+        currentCardIndex++;
+        showFlashcard();
+      }
+    });
 
     // Initialize the Home Page to be visible
     document.getElementById('home-page').style.display = 'block';
