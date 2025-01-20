@@ -1,0 +1,45 @@
+<!-- views/retrieve-page.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retrieve Flashcards</title>
+  <style>
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Flashcard</h1>
+  
+  <div>
+    <strong>Subject:</strong> <%= currentFlashcard.subject %><br>
+    <strong>Topic:</strong> <%= currentFlashcard.topic %><br>
+    <strong>Question:</strong> <%= currentFlashcard.question %><br>
+    <strong>Answer:</strong> <%= currentFlashcard.answer %>
+  </div>
+
+  <form method="get" action="/retrieve-page">
+    <div>
+      <% if (index > 0) { %>
+        <button type="submit" name="index" value="<%= index - 1 %>">Previous</button>
+      <% } %>
+
+      <% if (index < totalFlashcards - 1) { %>
+        <button type="submit" name="index" value="<%= index + 1 %>">Next</button>
+      <% } %>
+    </div>
+  </form>
+
+  <!-- Done button to return to landing page -->
+  <form method="get" action="/landing">
+    <button type="submit">Done</button>
+  </form>
+
+</body>
+</html>
+
