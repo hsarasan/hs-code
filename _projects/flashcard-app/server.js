@@ -13,13 +13,23 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); 
 
+// Use DATABASE_URL for connection, fallback for development
+const isProduction = process.env.NODE_ENV === 'production';
+const connectionString = process.env.DATABASE_URL ;
+
+console.log('database connection string ',connectionString);
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: 'localhost',
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: 5432,
+  connectionString: connectionString,
+  ssl: isProduction ? { rejectUnauthorized: false } : false, // Enable SSL in production
 });
+
+//const pool = new Pool({
+//  user: process.env.DB_USER,
+//  host: 'localhost',
+//  database: process.env.DB_NAME,
+//  password: process.env.DB_PASSWORD,
+//  port: 5432,
+//});
 
 // Middleware to parse JSON request bodies
 app.use(express.urlencoded({ extended: true }));
@@ -42,11 +52,17 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
+// Choose redirect URI based on the environment
+const redirectUri =
+  process.env.NODE_ENV === "production"
+    ? "https://your-app-name.onrender.com/auth/google/callback"
+    : "http://localhost:3000/auth/google/callback";
+
 // Google OAuth strategy
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:3000/auth/google/callback',
+  callbackURL: redirectUri,
 }, (accessToken, refreshToken, profile, done) => {
   const googleId = profile.id; // Extract the Google ID from the profile
   const user = { google_id: googleId, displayName: profile.displayName };
@@ -238,7 +254,7 @@ app.post('/retrieve-flashcards', (req, res) => {
 });
 
 // Start the server
-app.listen(3000, () => {
+app.listen(3000, "0.0.0.0",  () => {
   console.log('Server running on http://localhost:3000');
 });
 
