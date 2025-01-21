@@ -1,58 +1,146 @@
-<form method="POST" action="/retrieve-flashcards">
-  <label for="subject">Subject:</label>
-  <select id="subject" name="subject">
-    <option value="">--Select Subject--</option>
-    <% subjects.forEach(subject => { %>
-      <option value="<%= subject %>"><%= subject %></option>
-    <% }); %>
-  </select>
-
-  <label for="topic">Topic:</label>
-  <select id="topic" name="topic">
-    <option value="">--Select Topic--</option>
-  </select>
-
-  <button type="submit">Retrieve Flashcards</button>
-</form>
-
-<script>
-  // Handle subject selection change
-  document.getElementById('subject').addEventListener('change', function() {
-    const selectedSubject = this.value;
-    const topicDropdown = document.getElementById('topic');
-
-    // Clear the previous topics
-    topicDropdown.innerHTML = '<option value="">--Select Topic--</option>';
-
-    if (selectedSubject) {
-      // Make an AJAX request to get topics for the selected subject
-      fetch('/get-topics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ subject: selectedSubject })
-      })
-      .then(response => response.json())
-      .then(topics => {
-        if (topics.length > 0) {
-          topics.forEach(topic => {
-            const option = document.createElement('option');
-            option.value = topic.topic;
-            option.textContent = topic.topic;
-            topicDropdown.appendChild(option);
-          });
-        } else {
-          const option = document.createElement('option');
-          option.value = '';
-          option.textContent = 'No topics available';
-          topicDropdown.appendChild(option);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching topics:', error);
-      });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retrieve Flashcards</title>
+  <style>
+    /* General page layout */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-  });
-</script>
+
+    .form-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    label {
+      font-size: 1.1rem;
+      color: #333;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h1>Retrieve Flashcards</h1>
+    <form method="POST" action="/retrieve-flashcards">
+      
+      <!-- Subject dropdown -->
+      <div class="form-group">
+        <label for="subject">Subject:</label>
+        <select id="subject" name="subject">
+          <option value="">--Select Subject--</option>
+          <% subjects.forEach(subject => { %>
+            <option value="<%= subject %>"><%= subject %></option>
+          <% }); %>
+        </select>
+      </div>
+
+      <!-- Topic dropdown -->
+      <div class="form-group">
+        <label for="topic">Topic:</label>
+        <select id="topic" name="topic">
+          <option value="">--Select Topic--</option>
+        </select>
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit">Retrieve Flashcards</button>
+    </form>
+  </div>
+
+  <script>
+    // Handle subject selection change
+    document.getElementById('subject').addEventListener('change', function() {
+      const selectedSubject = this.value;
+      const topicDropdown = document.getElementById('topic');
+
+      // Clear the previous topics
+      topicDropdown.innerHTML = '<option value="">--Select Topic--</option>';
+
+      if (selectedSubject) {
+        // Make an AJAX request to get topics for the selected subject
+        fetch('/get-topics', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ subject: selectedSubject })
+        })
+        .then(response => response.json())
+        .then(topics => {
+          if (topics.length > 0) {
+            topics.forEach(topic => {
+              const option = document.createElement('option');
+              option.value = topic.topic;
+              option.textContent = topic.topic;
+              topicDropdown.appendChild(option);
+            });
+          } else {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No topics available';
+            topicDropdown.appendChild(option);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching topics:', error);
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
 
