@@ -9,13 +9,14 @@ Experience in designing and developing complex software systems
 Provided technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
-    - Programming Languages: C++ (upto C++23), rust, python
+    - Programming Languages: C++ (upto C++23), rust, python, GO
     - Operating System - Linux and a lot Unix variants
-    - Distributed Systems - kafka, zeroMQ, rabbitmq
-    - databases - Oracle, redis, memcached
+    - Distributed Systems - solace, kafka, zeroMQ, rabbitmq
+    - databases - Oracle, postgres, redis, memcached
     - Networking - TCP/IP, UDP
     - Scripting - Unix Scripting
     - Testing - gtest, catch
+    - Web Stuff - Node.js, python/flask
 
 Special interests topics
     - Low latency programming   
@@ -29,15 +30,14 @@ Domain Expertise
     - Derivatives pricing & risk software
     - Payment transaction software
 
-Some of the interesting personal projects (all developed in C++)
+Some of the interesting personal projects (all developed in C++ with some rust)
 
     - a very fast fix parser
     - monte carlo simulation for options pricing
     - lock free data structures library (header only)
     - a http interface and physical storage wrapper for memcached
-    - a header only implementation of zeroMQ 
     - a custom efficient memory allocator
-    - a derivative pricing and greeks library
+    - a derivative pricing and greeks library (in rust)
 
      All the above are free to be downloaded and used from my github (projects)
 
@@ -48,7 +48,7 @@ Some of the interesting personal projects (all developed in C++)
  eBooks
     - FAQs for an expert C++ programmer
     - boost FAQs 
-    - 50 Dynamic Programming explained 
+    - 100 Dynamic Programming explained 
 
  open source contribution
     - contributed to zeroMQ
