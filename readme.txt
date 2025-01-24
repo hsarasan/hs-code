@@ -5,6 +5,7 @@ But also consider myself an expert in Rust & Python. (Just that C++ is the first
 Over 13 years of experience developing low latency financial trading / derivative pricing & risk software
 Over 20 years of experience developing enterprise software
 
+AI enthusiast, selft learnt expert and coder
 Experience in designing and developing complex software systems
 Provided technical leadership and mentoring of teams of varied sizes
 
@@ -19,14 +20,12 @@ Techncial Expertise
     - Web Stuff - Node.js, python/flask
 
 Special interests topics
+    - AI and applications of AI in Trading
     - Low latency programming   
     - Generic Programming
     - distributed computing
-    - wait free and lock free programming
 
 Domain Expertise    
-    - Low latency programming 
-    - Distributed systems
     - Derivatives pricing & risk software
     - Payment transaction software
 
@@ -46,14 +45,12 @@ Some of the interesting personal projects (all developed in C++ with some rust)
     - stock price signal generator using C++,redis   
 
  eBooks
-    - FAQs for an expert C++ programmer
     - boost FAQs 
     - 100 Dynamic Programming explained 
 
  open source contribution
-    - contributed to zeroMQ
-    - contributed to quantlib 
+    - contributed to zeroMQ 
     - contributor for c++ & rust stack overflow
 
 other activities
-    - runs a daily C++ programming challenge newsletter
+    - runs a daily C++/rust programming challenge newsletter
