@@ -1,5 +1,4 @@
-
-An expert C++ programmer (I think!)
+Expert C++ Programmer with specialized knowlege in AI, Low Latency, options pricing/risk and Distributed systems
 But also consider myself an expert in Rust & Python. (Just that C++ is the first love)
 
 Over 13 years of experience developing low latency financial trading / derivative pricing & risk software
