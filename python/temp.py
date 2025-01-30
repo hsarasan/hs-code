@@ -1,0 +1,15 @@
+nums=[1,2,3,4,5,6,7]
+section=nums[0:4]
+section.reverse()
+print(section)
+print(nums)
+nums[0:4]=section
+print(nums)
+section=nums[4:7]
+section.reverse()
+print(section)
+print(nums)
+nums[4:7]=section
+print(nums)
+nums.reverse()
+print(nums)
