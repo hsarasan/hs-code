@@ -1,8 +1,6 @@
-Expert C++ Programmer with specialized knowlege in Low Latency, options pricing/risk and distributed systems
-But dabble  in Rust & Python. (Just that C++ is the first love)
+Expert C++ Programmer with  exeperience in developing Low Latency, options pricing/risk and distributed systems
+But dabble  in Rust & Python. 
 
-Over a decaded of experience developing low latency financial trading / derivative pricing & risk software
-Over 20 years of experience developing enterprise software
 Provided technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
@@ -32,4 +30,3 @@ Some of the interesting personal projects (all developed in C++ with some rust)
  open source contribution
     - contributed to zeroMQ 
     - contributor for c++ & rust stack overflow
-
