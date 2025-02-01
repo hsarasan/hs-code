@@ -1,17 +1,14 @@
 Expert C++ Programmer with specialized knowlege in Low Latency, options pricing/risk and distributed systems
 But dabble  in Rust & Python. (Just that C++ is the first love)
 
-Over 13 years of experience developing low latency financial trading / derivative pricing & risk software
+Over a decaded of experience developing low latency financial trading / derivative pricing & risk software
 Over 20 years of experience developing enterprise software
-
-AI enthusiast, selft learnt expert and coder
-Experience in designing and developing complex software systems
 Provided technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
     - Programming Languages: C++ (upto C++20), rust, python
     - Operating System - Linux and a lot Unix variants
-    - Distributed Systems - solace, zeroMQ
+    - Distributed Systems - solace, zeroMQ, kafka
     - databases - Oracle, postgres, redis, memcached
     - Networking - TCP/IP, UDP
     - Scripting - Unix Scripting
