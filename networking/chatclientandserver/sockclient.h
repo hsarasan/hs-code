@@ -112,6 +112,7 @@ namespace SC
       int pid = getpid();
       buffer[s.size()] = 0;
       strcpy(buffer, std::string(s).c_str());
+			std::cout<<"Writing " <<buffer<<std::endl;
       int noBytesRead = write(sockFD, buffer, s.size());
     }
   };
