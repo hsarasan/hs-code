@@ -6,6 +6,29 @@
 // Define the SOH character (ASCII value 1)
 const char SOH = 0x01;
 
+std::map<std::string,std::string> parse(const std::string& message) {
+        size_t pos = 0;
+        size_t next_pos = 0;
+        std::map<std::string,std::string> fields;
+        
+        while (pos < message.size()) {
+            next_pos = message.find('=', pos);  // Find '=' to separate key and value
+            if (next_pos == std::string::npos) break;
+
+            std::string key = message.substr(pos, next_pos - pos);  // Extract key
+            pos = next_pos + 1;  // Move past the '='
+            next_pos = message.find(SOH, pos);  // Find the delimiter '|'
+            if (next_pos == std::string::npos) next_pos = message.size();
+
+            std::string value = message.substr(pos, next_pos - pos);  // Extract value
+            fields[key] = value;  // Store the key-value pair
+
+            pos = next_pos + 1;  // Move past the delimiter to the next key-value pair
+        }
+        return fields;
+}
+
+
 // Function to generate a FIX message from a map
 std::string generateFIXMessage(const std::map<int, std::string>& fixMap) {
     std::ostringstream fixMessage;
@@ -47,6 +70,7 @@ void printFixMessage(const std::string& fixMessage) {
             std::cout << ch;
         }
     }
+    std::cout<<std::endl;
 }
 int main() {
     // Example FIX map with key-value pairs
@@ -68,6 +92,12 @@ int main() {
     std::string fixMessage = generateFIXMessage(fixMap);
 
     printFixMessage(fixMessage);
+
+    auto fields=parse(fixMessage);
+    for (const auto& [key, value] : fields) {
+        std::cout << key << " = " << value << std::endl;
+    }
+
 
     return 0;
 }
