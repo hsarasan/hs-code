@@ -1,7 +1,12 @@
+#ifndef _FIX_UTILS_H_
+#define _FIX_UTILS_H_
+
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <iomanip>
+
+namespace FIX{
 
 // Define the SOH character (ASCII value 1)
 const char SOH = 0x01;
@@ -101,3 +106,7 @@ int main() {
 
     return 0;
 }
+
+};//end of namespace FIX
+
+#endif //FIX_UTILS_H_
