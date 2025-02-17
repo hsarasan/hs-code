@@ -1,0 +1,14 @@
+docker build -t udp-server .
+docker run -d --name my_udp_server -p 8080:8080/udp udp-server
+docker exec -it my_udp_server /bin/bash
+docker logs my_udp_server
+docker ps
+docker stop my_udp_server
+docker rm my_udp_server
+docker kill my_udp_server
+=====================================
+
+
+sudo docker build -t my-server .
+sudo docker run -d --name server_tag -p 8080:8080/udp my-server
+
