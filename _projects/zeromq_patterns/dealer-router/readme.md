@@ -2,7 +2,7 @@
     How it works:
         DEALER is a non-blocking version of REQ (can send multiple requests).
         ROUTER is a non-blocking version of REP (routes messages to specific clients).
-        WORKER (if present, ROUTER forwards to worker). Worker will send response to Dealer
+        WORKER (if present, ROUTER forwards to worker). Worker will send response to Dealer via Router
 
 DEALER->ROUTER->WORKER->ROUTER->DEALER
         
