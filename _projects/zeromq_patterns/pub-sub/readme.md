@@ -5,3 +5,8 @@
         This pattern is asynchronous and allows one-to-many communication.
 
 Example: Real-time market data distribution in trading systems.
+
+Programs:
+
+	publisher & subscriber - sends and subscribes to generic messages
+  newspublisher & newssubscriber - sends and subscribes to topic=news
