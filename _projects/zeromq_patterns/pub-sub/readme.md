@@ -8,5 +8,5 @@ Example: Real-time market data distribution in trading systems.
 
 Programs:
 
-	publisher & subscriber - sends and subscribes to generic messages
+  publisher & subscriber - sends and subscribes to topic=news
   newspublisher & newssubscriber - sends and subscribes to topic=news
