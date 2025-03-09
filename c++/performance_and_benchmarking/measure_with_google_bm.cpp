@@ -35,4 +35,4 @@ static void BM_UsingArray(benchmark::State& state) {
 BENCHMARK(BM_UsingArray);
 
 // Main entry point for Google Benchmark
-//BENCHMARK_MAIN();
+BENCHMARK_MAIN();
