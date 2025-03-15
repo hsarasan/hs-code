@@ -7,7 +7,7 @@
 #include <optional>
 #include "lfstack.h"  // Include your lock-free stack header
 
-constexpr int MAX_THREADS = 16;
+constexpr int MAX_THREADS = 128;
 constexpr int OPERATIONS_PER_THREAD = 100000;
 
 // **Wrapper for Lock-Free Stack**
