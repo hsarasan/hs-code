@@ -37,12 +37,11 @@ class LFStack{
         }
         ~LFStack() {
             // Cleanup remaining nodes during stack destruction (in case of stack object destruction)
-            while (head.load() != nullptr) {
-                Node* old_head = head.load();
-                if (head.compare_exchange_weak(old_head, old_head->next,
-                                               std::memory_order_release, std::memory_order_relaxed)) {
-                    delete old_head; // Safely deallocate nodes
-                }
+            Node* current = head.load();
+            while (current != nullptr) {
+                Node* next = current->next;  // Save next node before deletion
+                delete current;  // Delete current node
+                current = next;  // Move to the next node
             }
         }
 
