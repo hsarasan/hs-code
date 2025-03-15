@@ -12,6 +12,7 @@ namespace HS{
     public:
         void lock(){
             while(!flag.test_and_set()){}
+            //std::this_thread::yield();
         }
         void unlock(){
             flag.clear();

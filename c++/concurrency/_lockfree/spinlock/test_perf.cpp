@@ -21,7 +21,7 @@ void mutex_test(std::mutex &m, std::atomic<int> &counter, int iterations) {
 }
 
 int main() {
-    const int num_threads = 200;
+    const int num_threads = 48;
     const int iterations = 1000000; // Number of increments per thread
 
     // SpinLock test
