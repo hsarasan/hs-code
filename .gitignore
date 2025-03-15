@@ -7,3 +7,4 @@ cpp-revision/general/a.exe
 python/__pycache__/json.cpython-313.pyc
 *.exe
 c++/template-meta-programming/temp.cpp
+c++/concurrency/_lockfree/basic_calls/.vscode/settings.json
