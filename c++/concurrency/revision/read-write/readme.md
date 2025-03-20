@@ -1,0 +1,1 @@
+Implement a read-write lock (mutex) where multiple threads can read the shared resource simultaneously, but only one thread can write to it at a time.
