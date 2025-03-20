@@ -1,0 +1,1 @@
+Remove all extents from a type
