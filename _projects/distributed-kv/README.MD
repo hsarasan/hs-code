@@ -5,15 +5,7 @@ This is a simple distributed KV system with REST API and WAL persistance mechani
 
 Architecture
 ====================
-
- KV Server (Instance 1) ---------------REST -------------------Client
-    |
-    |
-    |
-  key not in Instance 1
-    |
-    |
-KV Server Instance 2
+Each instance of the KV store keeps the key values in memory.
 
 If the key is not found in the instance, it is forwarded to the peer
 
