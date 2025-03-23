@@ -6,6 +6,9 @@
 #include <unordered_map>
 #include <thread>
 #include <mutex>
+#include <vector>
+#include <filesystem>
+#include <sstream>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -14,12 +17,56 @@ using tcp = ip::tcp;
 namespace beast = boost::beast;
 namespace http = boost::beast::http;
 using json = nlohmann::json;
+namespace fs = std::filesystem;
 
 unordered_map<string, string> store;
 mutex store_mutex;
-const string WAL_FILE = "kv_store.log";
+string WAL_FILE;
+vector<pair<string, string>> peer_nodes;  // Stores <IP, Port>
 
-//  Append operations to the WAL log
+// 📝 Ensure WAL log directory exists
+void ensure_directory_exists(const string& dir_path) {
+    if (!fs::exists(dir_path)) {
+        fs::create_directories(dir_path);
+    }
+}
+
+// 📖 Read configuration file (INI-like format)
+bool read_config(const string& filename, short &port, string &wal_dir, string &wal_file, vector<pair<string, string>> &peers) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error: Unable to open config file: " << filename << endl;
+        return false;
+    }
+
+    string line;
+    while (getline(file, line)) {
+        if (line.find("port") != string::npos) {
+            port = stoi(line.substr(line.find("=") + 1));
+        } else if (line.find("wal_directory") != string::npos) {
+            wal_dir = line.substr(line.find("=") + 1);
+        } else if (line.find("wal_file") != string::npos) {
+            wal_file = line.substr(line.find("=") + 1);
+        } else if (line.find("nodes") != string::npos) {
+            string peers_str = line.substr(line.find("=") + 1);
+            stringstream ss(peers_str);
+            string peer;
+            while (getline(ss, peer, ',')) {
+                size_t colon = peer.find(":");
+                if (colon != string::npos) {
+                    string ip = peer.substr(0, colon);
+                    string port = peer.substr(colon + 1);
+                    peers.emplace_back(ip, port);
+                }
+            }
+        }
+    }
+
+    file.close();
+    return true;
+}
+
+// 📝 Append operations to the WAL log
 void append_to_log(const string& operation, const string& key, const string& value = "") {
     ofstream logFile(WAL_FILE, ios::app);
     if (logFile.is_open()) {
@@ -28,7 +75,7 @@ void append_to_log(const string& operation, const string& key, const string& val
     }
 }
 
-//  Restore in-memory store from WAL log
+// 🔄 Restore in-memory store from WAL log
 void restore_from_log() {
     ifstream logFile(WAL_FILE);
     string operation, key, value;
@@ -42,18 +89,37 @@ void restore_from_log() {
     }
 }
 
-//  Periodically clean up (checkpointing)
-void compact_log() {
-    lock_guard<mutex> lock(store_mutex);
-    ofstream snapshot("kv_store_snapshot.txt");
-    for (const auto& [key, value] : store) {
-        snapshot << key << " " << value << endl;
+// 🔍 Forward request to peer nodes if key not found
+string forward_get_request(const string& key) {
+    for (const auto& [peer_ip, peer_port] : peer_nodes) {
+        try {
+            io_context ioc;
+            tcp::resolver resolver(ioc);
+            auto const results = resolver.resolve(peer_ip, peer_port);
+
+            beast::tcp_stream stream(ioc);
+            stream.connect(results);
+
+            http::request<http::string_body> req{http::verb::get, "/get/" + key, 11};
+            req.set(http::field::host, peer_ip);
+            req.set(http::field::user_agent, "kv_client");
+
+            http::write(stream, req);
+            beast::flat_buffer buffer;
+            http::response<http::string_body> res;
+            http::read(stream, buffer, res);
+
+            if (res.result() == http::status::ok) {
+                return res.body();
+            }
+        } catch (exception& e) {
+            cerr << "Failed to connect to peer " << peer_ip << ":" << peer_port << endl;
+        }
     }
-    snapshot.close();
-    remove(WAL_FILE.c_str()); // Delete WAL log
+    return "{}";
 }
 
-//  Handle HTTP requests
+// 📌 Handle HTTP requests
 void handle_request(http::request<http::string_body>& req, http::response<http::string_body>& res) {
     res.version(req.version());
     res.set(http::field::content_type, "application/json");
@@ -79,7 +145,7 @@ void handle_request(http::request<http::string_body>& req, http::response<http::
             res.body() = json({{"value", store[key]}}).dump();
         } else {
             res.result(http::status::not_found);
-            res.body() = json({{"error", "Key not found"}}).dump();
+            res.body() = forward_get_request(key);
         }
     } 
     else if (req.method() == http::verb::delete_ && req.target().starts_with("/delete/")) {
@@ -120,7 +186,7 @@ void handle_request(http::request<http::string_body>& req, http::response<http::
     res.prepare_payload();
 }
 
-//  Handle client connections
+// 📌 Handles an individual client session
 void session(tcp::socket socket) {
     try {
         beast::flat_buffer buffer;
@@ -129,13 +195,14 @@ void session(tcp::socket socket) {
 
         http::response<http::string_body> res;
         handle_request(req, res);
+
         http::write(socket, res);
-    } catch (const std::exception& e) {
+    } catch (std::exception& e) {
         cerr << "Session error: " << e.what() << endl;
     }
 }
 
-// Start the server
+// 🚀 Start the server
 void run_server(short port) {
     io_context ioc;
     tcp::acceptor acceptor(ioc, tcp::endpoint(tcp::v4(), port));
@@ -150,8 +217,18 @@ void run_server(short port) {
 }
 
 int main() {
-    restore_from_log();  // Restore store from WAL log on startup
-    run_server(9000);
+    short port;
+    string wal_dir, wal_file;
+
+    if (!read_config("config.cfg", port, wal_dir, wal_file, peer_nodes)) {
+        return 1;
+    }
+
+    ensure_directory_exists(wal_dir);
+    WAL_FILE = wal_dir + "/" + wal_file;
+
+    restore_from_log();
+    run_server(port);
     return 0;
 }
 
