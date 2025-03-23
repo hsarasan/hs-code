@@ -24,14 +24,14 @@ mutex store_mutex;
 string WAL_FILE;
 vector<pair<string, string>> peer_nodes;  // Stores <IP, Port>
 
-// 📝 Ensure WAL log directory exists
+//  Ensure WAL log directory exists
 void ensure_directory_exists(const string& dir_path) {
     if (!fs::exists(dir_path)) {
         fs::create_directories(dir_path);
     }
 }
 
-// 📖 Read configuration file (INI-like format)
+//  Read configuration file (INI-like format)
 bool read_config(const string& filename, short &port, string &wal_dir, string &wal_file, vector<pair<string, string>> &peers) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -66,7 +66,7 @@ bool read_config(const string& filename, short &port, string &wal_dir, string &w
     return true;
 }
 
-// 📝 Append operations to the WAL log
+//  Append operations to the WAL log
 void append_to_log(const string& operation, const string& key, const string& value = "") {
     ofstream logFile(WAL_FILE, ios::app);
     if (logFile.is_open()) {
@@ -75,7 +75,7 @@ void append_to_log(const string& operation, const string& key, const string& val
     }
 }
 
-// 🔄 Restore in-memory store from WAL log
+//  Restore in-memory store from WAL log
 void restore_from_log() {
     ifstream logFile(WAL_FILE);
     string operation, key, value;
@@ -89,7 +89,7 @@ void restore_from_log() {
     }
 }
 
-// 🔍 Forward request to peer nodes if key not found
+//  Forward request to peer nodes if key not found
 string forward_get_request(const string& key) {
     for (const auto& [peer_ip, peer_port] : peer_nodes) {
         try {
@@ -119,7 +119,7 @@ string forward_get_request(const string& key) {
     return "{}";
 }
 
-// 📌 Handle HTTP requests
+//  Handle HTTP requests
 void handle_request(http::request<http::string_body>& req, http::response<http::string_body>& res) {
     res.version(req.version());
     res.set(http::field::content_type, "application/json");
@@ -186,7 +186,7 @@ void handle_request(http::request<http::string_body>& req, http::response<http::
     res.prepare_payload();
 }
 
-// 📌 Handles an individual client session
+//  Handles an individual client session
 void session(tcp::socket socket) {
     try {
         beast::flat_buffer buffer;
@@ -202,7 +202,7 @@ void session(tcp::socket socket) {
     }
 }
 
-// 🚀 Start the server
+//  Start the server
 void run_server(short port) {
     io_context ioc;
     tcp::acceptor acceptor(ioc, tcp::endpoint(tcp::v4(), port));
