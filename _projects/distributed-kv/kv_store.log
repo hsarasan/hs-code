@@ -1,0 +1,4 @@
+SET username Alice
+SET city Oxford
+DELETE city 
+SET city Cambridge
