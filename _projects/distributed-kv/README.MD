@@ -14,15 +14,21 @@ TechStack - C++ with boost beast.
 Rest API
 ==========================
 Sample GET -   127.0.0.1:9000/get/city
+
+
 Same POST - 127.0.0.1:9000/set
   {
   "key": "username",
   "value": "Alice"
 }
+
+
 Sample PUT - 127.0.0.1:9000/update/city
 {
   "value": "Oxford"
 }
+
+
 Sample DELETE - 127.0.0.1:9000/delete/username
 
 
@@ -32,6 +38,8 @@ Benchmarking
 The benchmarking was done using wrk
 
 user@71collinsdrive:~/hs-code/_projects/distributed-kv/bench-test$ cat get.output 
+
+
 Running 30s test @ http://localhost:9000/get/username
   8 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -43,6 +51,8 @@ Requests/sec:  19020.02
 Transfer/sec:      1.60MB
 
 user@71collinsdrive:~/hs-code/_projects/distributed-kv/bench-test$ cat post.output 
+
+
 Running 30s test @ http://localhost:9000/set
   8 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
