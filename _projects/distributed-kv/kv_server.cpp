@@ -19,7 +19,7 @@ unordered_map<string, string> store;
 mutex store_mutex;
 const string WAL_FILE = "kv_store.log";
 
-// 📝 Append operations to the WAL log file
+//  Append operations to the WAL log
 void append_to_log(const string& operation, const string& key, const string& value = "") {
     ofstream logFile(WAL_FILE, ios::app);
     if (logFile.is_open()) {
@@ -28,12 +28,12 @@ void append_to_log(const string& operation, const string& key, const string& val
     }
 }
 
-// 🔄 Restore in-memory store from WAL log
+//  Restore in-memory store from WAL log
 void restore_from_log() {
     ifstream logFile(WAL_FILE);
     string operation, key, value;
     while (logFile >> operation >> key) {
-        if (operation == "SET") {
+        if (operation == "SET" || operation == "UPDATE") {
             logFile >> value;
             store[key] = value;
         } else if (operation == "DELETE") {
@@ -42,7 +42,7 @@ void restore_from_log() {
     }
 }
 
-// 🔥 Periodically clean up (checkpointing)
+//  Periodically clean up (checkpointing)
 void compact_log() {
     lock_guard<mutex> lock(store_mutex);
     ofstream snapshot("kv_store_snapshot.txt");
@@ -53,7 +53,7 @@ void compact_log() {
     remove(WAL_FILE.c_str()); // Delete WAL log
 }
 
-// 📌 Handle HTTP requests
+//  Handle HTTP requests
 void handle_request(http::request<http::string_body>& req, http::response<http::string_body>& res) {
     res.version(req.version());
     res.set(http::field::content_type, "application/json");
@@ -95,6 +95,23 @@ void handle_request(http::request<http::string_body>& req, http::response<http::
             res.body() = json({{"error", "Key not found"}}).dump();
         }
     } 
+    else if (req.method() == http::verb::put && req.target().starts_with("/update/")) {
+        string key = string(req.target()).substr(8);
+        json request_json = json::parse(req.body());
+        string value = request_json["value"];
+
+        lock_guard<mutex> lock(store_mutex);
+
+        if (store.count(key)) {
+            store[key] = value;
+            append_to_log("UPDATE", key, value);
+            res.result(http::status::ok);
+            res.body() = json({{"status", "Updated"}}).dump();
+        } else {
+            res.result(http::status::not_found);
+            res.body() = json({{"error", "Key not found"}}).dump();
+        }
+    }
     else {
         res.result(http::status::bad_request);
         res.body() = json({{"error", "Invalid request"}}).dump();
@@ -103,7 +120,7 @@ void handle_request(http::request<http::string_body>& req, http::response<http::
     res.prepare_payload();
 }
 
-// 🌍 Handle client connections
+//  Handle client connections
 void session(tcp::socket socket) {
     try {
         beast::flat_buffer buffer;
@@ -118,7 +135,7 @@ void session(tcp::socket socket) {
     }
 }
 
-// 🚀 Start the server
+// Start the server
 void run_server(short port) {
     io_context ioc;
     tcp::acceptor acceptor(ioc, tcp::endpoint(tcp::v4(), port));

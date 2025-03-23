@@ -2,3 +2,5 @@ SET username Alice
 SET city Oxford
 DELETE city 
 SET city Cambridge
+UPDATE city Bob
+UPDATE city Oxford
