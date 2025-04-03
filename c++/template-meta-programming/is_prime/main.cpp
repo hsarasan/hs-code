@@ -27,13 +27,16 @@ struct is_Prime{
     constexpr static bool value=(N>2) && checkDivisibilityTill2<N,N/2>::value;
 };
 
+template <int N>
+constexpr static bool is_Prime_v=is_Prime<N>::value;
+
 int main(){
-    cout<<is_Prime<1>::value<<endl;
-    cout<<is_Prime<2>::value<<endl;
-    cout<<is_Prime<3>::value<<endl;
-    cout<<is_Prime<4>::value<<endl;
-    cout<<is_Prime<5>::value<<endl;
-    cout<<is_Prime<6>::value<<endl;
-    cout<<is_Prime<7>::value<<endl;
+    cout<<is_Prime_v<1><<endl;
+    cout<<is_Prime_v<2><<endl;
+    cout<<is_Prime_v<3><<endl;
+    cout<<is_Prime_v<4><<endl;
+    cout<<is_Prime_v<5><<endl;
+    cout<<is_Prime_v<6><<endl;
+    cout<<is_Prime_v<7><<endl;
     return 0;
 }

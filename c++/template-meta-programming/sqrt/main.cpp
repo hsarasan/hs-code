@@ -1,26 +1,43 @@
 #include <iostream>
+#include <array>
 
 using namespace std;
 
-template <int Sqr, int N>
-constexpr auto checkSqrFrom2(){
-    if constexpr (Sqr*Sqr==N)
-        return Sqr;
-    else    
-        return checkSqrFrom2<Sqr+1,N>();
+template <typename T>
+constexpr auto sqrt(T n){
+    if (n<=1){
+        return 1;
+    }
+    T lo=1;
+    T high=n;
+
+    T mid;
+    while(lo<=high){
+        mid=(lo+high)/2;
+        if (mid*mid==n) return mid;
+        //if (lo==high-1) return mid;
+        if (mid*mid<n){
+            lo=mid+1;
+        }
+        else{
+            high=mid-1;
+        }
+    }
+    return mid;
 }
-
-template <int N>
-struct ct_sqrt{
-    constexpr static int value=checkSqrFrom2<1,N>();
-};
-
-template <int N>
-constexpr static int ct_sqrt_v=ct_sqrt<N>::value;
 
 
 int main(){
-    int x = ct_sqrt_v<25>;
-    cout<<x<<endl;
+    cout<<sqrt(25)<<endl;
+    cout<<sqrt(23)<<endl;
+    
+    cout<<sqrt(35)<<endl;
+    
+    cout<<sqrt(36)<<endl;
+
+    static_assert(sqrt(49)==7);
+    std::array<int,sqrt(64)> a;
+    cout<<a.size()<<endl;
+    
     return 0;
 }

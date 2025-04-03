@@ -9,10 +9,12 @@ struct is_Integral:std::false_type{};
 template <> 
 struct is_Integral<int> :std::true_type{};
 
+template <typename T>
+constexpr static int is_Integral_v=is_Integral<T>::value;
 
 int main(){
 
-    cout<<is_Integral<int>::value<<endl;
-    cout<<is_Integral<char*>::value<<endl;
+    cout<<is_Integral_v<int><<endl;
+    cout<<is_Integral_v<char*><<endl;
 
 }
