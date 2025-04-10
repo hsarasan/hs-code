@@ -26,7 +26,7 @@ std::string pad_whole_numbers(const std::string& input, int N) {
             continue;
         }
 
-        // Collect the number
+        
         size_t start = i;
         while (i < input.size() && std::isdigit(input[i])) {
             ++i;
@@ -43,5 +43,5 @@ std::string pad_whole_numbers(const std::string& input, int N) {
 }
 
 int main(){
-    cout<<pad_whole_numbers("Invoice 12 is due at 12:30 if amount above 12.9 but not if above 123456",5)<<endl;
+    cout<<pad_whole_numbers("My 11:30 appointment with GP James Bond 0 is after 1.4 months",5)<<endl;
 }
