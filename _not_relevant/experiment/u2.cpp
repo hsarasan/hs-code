@@ -1,7 +1,6 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <cctype>  
 
 using namespace std;
 
@@ -9,7 +8,7 @@ string process_stream(istream& input, int N) {
     ostringstream result;
     bool processing_number = false;
     bool skip_padding = false;  
-    bool was_punctuation = false;  // Tracks if the previous character was '.' or ':'
+    bool was_punctuation = false; 
     string current_number;
     
     for (char ch; input.get(ch); ) {
