@@ -43,5 +43,5 @@ std::string pad_whole_numbers(const std::string& input, int N) {
 }
 
 int main(){
-    cout<<pad_whole_numbers("My 11:30 appointment with GP James Bond 0 is after 1.4 months",5)<<endl;
+    cout<<pad_whole_numbers("My 11:30 appointment with GP James Bond 0 is after 1.4 months and 1234 calls",3)<<endl;
 }
