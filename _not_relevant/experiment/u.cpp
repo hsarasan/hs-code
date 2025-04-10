@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <cctype>
 #include <iomanip>
 
 using namespace std;
@@ -43,5 +42,5 @@ std::string pad_whole_numbers_in_string(const std::string& input, int N) {
 }
 
 int main(){
-    cout<<pad_whole_numbers_in_string("My 11:30 appointment with GP James Bond 0 is after 1.4 months and 1234 calls",3)<<endl;
+    cout<<pad_whole_numbers_in_string("abcd -1.2 3.2.2 3:4 a..2",3)<<endl;
 }
