@@ -10,6 +10,6 @@ f(){
 
 int main(){
     f<int>();
-    f<void>();
+    //f<void>();
     return 0;
 }
