@@ -26,7 +26,7 @@ void produce_messages(const std::string& brokers, const std::string& topic, int 
 
     for (int i = 0; i < num_messages; ++i) {
         std::string message = "Message " + std::to_string(i + 1);
-
+        message="ORACLE,BID,8.00,ASK,8.04,END";
         rd_kafka_resp_err_t err = rd_kafka_producev(
             producer,
             RD_KAFKA_V_TOPIC(topic.c_str()),
@@ -54,7 +54,7 @@ void produce_messages(const std::string& brokers, const std::string& topic, int 
 
 int main() {
     std::string brokers = "localhost:9092";
-    std::string topic = "example_topic";
+    std::string topic = "us-equities";
 
     int num_messages = 10; // Number of messages to produce
     int delay_ms = 1000;   // Delay in milliseconds between messages

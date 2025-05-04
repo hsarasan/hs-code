@@ -24,7 +24,7 @@ void consume_messages(rd_kafka_t *rk, rd_kafka_topic_t *rkt) {
 
 int main() {
     std::string broker = "localhost:9092";
-    std::string topic_name = "example_topic";
+    std::string topic_name = "us-equities";
     std::string group_id = "test_group";
 
     rd_kafka_t *rk;  // Kafka consumer instance
