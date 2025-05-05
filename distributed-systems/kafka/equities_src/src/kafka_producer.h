@@ -44,19 +44,26 @@ private:
     }
 
     void send_message(const std::string& message) {
+				auto message2=std::to_string(current_time_us()) + "," + message;
+
         rd_kafka_resp_err_t err = rd_kafka_producev(
             producer,
             RD_KAFKA_V_TOPIC(topic.c_str()),
-            RD_KAFKA_V_VALUE(const_cast<char*>(message.c_str()), message.size()),
+            RD_KAFKA_V_VALUE(const_cast<char*>(message2.c_str()), message2.size()),
             RD_KAFKA_V_END
         );
 
         if (err) {
             std::cerr << "Failed to produce message: " << rd_kafka_err2str(err) << std::endl;
         } else {
-            std::cout << "Produced message: " << message << std::endl;
+            std::cout << "Produced message: " << message2 << std::endl;
         }
-        rd_kafka_flush(producer, 1); // Wait for all messages to be delivered
+        rd_kafka_flush(producer, 5); // Wait for all messages to be delivered
     }
+
+		uint64_t current_time_us() {
+    	auto now = std::chrono::high_resolution_clock::now();
+    	return std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+		}
 };
 

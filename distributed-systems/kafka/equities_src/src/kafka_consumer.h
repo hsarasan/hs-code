@@ -82,16 +82,17 @@ private:
         fields.push_back(token);
     	}
 
-    	if (fields.size() != 4) {
-        std::cout<<"Malformed message: expected 4 comma-separated fields"<<std::endl;
+    	if (fields.size() != 5) {
+        std::cout<<"Malformed message: expected 5 comma-separated fields | "<<message<<std::endl;
 				return { {}, {} };
     	}
 
-    	std::string ticker = fields[1];
+    	std::string ticker = fields[2];
     	std::unordered_map<std::string, std::string> field_map = {
-        {"seqno", fields[0]},
-        {"bid",   fields[2]},
-        {"ask",   fields[3]}
+        {"ts", 		fields[0]},
+        {"seqno", fields[1]},
+        {"bid",   fields[3]},
+        {"ask",   fields[4]}
     	};
 
     	return std::make_tuple(ticker, field_map);
