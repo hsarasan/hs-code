@@ -62,7 +62,6 @@ int main() {
 
         if (tokens.size() >= 6 && tokens[1] == "BID" && tokens[3] == "ASK") {
             std::string formatted = std::to_string(seq_no++)+","+tokens[0] + "," + tokens[2] + "," + tokens[4];
-            std::cout << formatted << std::endl;
 						kfq.send(formatted);
         } else {
             std::cerr << "Invalid message format: " << message << std::endl;

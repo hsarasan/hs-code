@@ -10,11 +10,9 @@
 
 class KafkaConsumer {
 public:
-    KafkaConsumer() {
-        std::string broker = "localhost:9092";
-        std::string topic_name = "us-equities";
-        std::string group_id = "test_group";
-
+    KafkaConsumer(const std::string &broker_, const std::string& topic_, const std::string &group_id_) :
+								broker(broker_), topic_name(topic_), group_id(group_id_)
+		{
         // Create Kafka config and set error callback
         conf = rd_kafka_conf_new();
         rd_kafka_conf_set_error_cb(conf, error_callback);
@@ -101,5 +99,6 @@ private:
     rd_kafka_t *rk;             // Kafka consumer instance
     rd_kafka_conf_t *conf;      // Kafka config
 		std::function<void(std::string, std::unordered_map<std::string,std::string>)> cb;
+		std::string broker,topic_name,group_id;
 };
 

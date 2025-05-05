@@ -4,7 +4,7 @@
 int main(){
 
 
-	KafkaConsumer kfq;
+	KafkaConsumer kfq("localhost:9092","us-equities","equities_group");
 	kfq.consume([&](std::string symbol, std::unordered_map<std::string,std::string> m){
 
 			std::cout<<"Symbol "<<symbol<<" => ";
