@@ -56,7 +56,7 @@ private:
         } else {
             std::cout << "Produced message: " << message << std::endl;
         }
-        rd_kafka_flush(producer, 5000); // Wait for all messages to be delivered
+        rd_kafka_flush(producer, 1); // Wait for all messages to be delivered
     }
 };
 

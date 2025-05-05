@@ -5,6 +5,15 @@ int main(){
 
 
 	KafkaConsumer kfq;
-	kfq.consume();
+	kfq.consume([&](std::string symbol, std::unordered_map<std::string,std::string> m){
+
+			std::cout<<"Symbol "<<symbol<<" => ";
+			for (const auto & [k,v]: m){
+				std::cout<<k<<"="<<v<<" ";
+			}
+			std::cout<<std::endl;
+
+	});
+
 	return 0;
 }

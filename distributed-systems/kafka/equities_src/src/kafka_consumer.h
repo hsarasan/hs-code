@@ -1,6 +1,12 @@
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <functional>
+#include <unordered_map>
+#include <sstream>
+#include <tuple>
 #include <librdkafka/rdkafka.h>
+
 
 class KafkaConsumer {
 public:
@@ -39,15 +45,18 @@ public:
         }
     }
 
-    void consume() {
+    void consume(std::function<void(std::string,std::unordered_map<std::string,std::string>)> func) {
         while (true) {
             // Poll for new messages
+						cb=func;
             rd_kafka_message_t *msg = rd_kafka_consumer_poll(rk, 1000);  // Poll with timeout
             if (msg) {
                 if (msg->err) {
                     std::cerr << "Error: " << rd_kafka_message_errstr(msg) << std::endl;
                 } else {
-                    std::cout << "Message consumed: " << std::string((char *)msg->payload, msg->len) << std::endl;
+                    auto payload=std::string((char *)msg->payload, msg->len);
+										auto [token,kv]=parse_payload(payload);
+										cb(token,kv);
                 }
                 rd_kafka_message_destroy(msg);
             }
@@ -64,7 +73,33 @@ private:
         std::cerr << "Error: " << reason << std::endl;
     }
 
+
+		std::tuple<std::string, std::unordered_map<std::string, std::string>> parse_payload(const std::string & message) {
+
+    	std::istringstream ss(message);
+    	std::vector<std::string> fields;
+			std::string token;
+
+    	while (std::getline(ss, token, ',')) {
+        fields.push_back(token);
+    	}
+
+    	if (fields.size() != 4) {
+        std::cout<<"Malformed message: expected 4 comma-separated fields"<<std::endl;
+				return { {}, {} };
+    	}
+
+    	std::string ticker = fields[1];
+    	std::unordered_map<std::string, std::string> field_map = {
+        {"seqno", fields[0]},
+        {"bid",   fields[2]},
+        {"ask",   fields[3]}
+    	};
+
+    	return std::make_tuple(ticker, field_map);
+		}
     rd_kafka_t *rk;             // Kafka consumer instance
     rd_kafka_conf_t *conf;      // Kafka config
+		std::function<void(std::string, std::unordered_map<std::string,std::string>)> cb;
 };
 
