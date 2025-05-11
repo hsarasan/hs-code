@@ -1,33 +1,29 @@
 #include <iostream>
-#include <utility>
-#include <iterator>
-#include <algorithm>
-#include <type_traits>
-
-using namespace std;
+#include <cstddef>  // for size_t
 
 template <typename T, size_t N>
 struct init_list {
-    T values[N];
+    T data[N];
 
-    init_list(std::same_as<T> auto... args) 
-    requires (sizeof...(args) == N)
-    : values{args...} {}
+    // Variadic template constructor
+    template <typename... U>
+    init_list(U... args) : data{ static_cast<T>(args)... } {
+        static_assert(sizeof...(args) == N, "Wrong number of elements");
+    }
 
-    T* begin() { return values; }
-    T* end()   { return values + N; }
+    T* begin() { return data; }
+    T* end()   { return data + N; }
 
-    const T* begin() const { return values; }
-    const T* end()   const { return values + N; }
-
+    const T* begin() const { return data; }
+    const T* end()   const { return data + N; }
 };
 
 int main() {
-    init_list<int, 5> l(1, 2, 3, 4, 5);  // OK
+    init_list<int, 4> il{1, 2, 3, 4};
 
-    for (const auto & i: l){
-        cout<<i<<endl;
-    }
+    for (auto x : il)
+        std::cout << x << ' ';
+    std::cout << '\n';
 
     return 0;
 }
