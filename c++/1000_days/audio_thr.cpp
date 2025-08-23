@@ -8,110 +8,125 @@
 
 using namespace std;
 
-mutex m;
-condition_variable cv;
-queue<int> q;
+// Thread-safe event queue
+template<typename T>
+class EventQueue {
+    queue<T> q;
+    mutex m;
+    condition_variable cv;
+public:
+    void push(T value) {
+        {
+            lock_guard<mutex> lg(m);
+            q.push(value);
+        }
+        cv.notify_one();
+    }
 
+    T wait_and_pop() {
+        unique_lock<mutex> ul(m);
+        cv.wait(ul, [&]{ return !q.empty(); });
+        T value = q.front();
+        q.pop();
+        return value;
+    }
+};
+
+// States
 enum class State { Start, Play, Pause, Vol, Stop };
 
-// Coroutine-based generator
+// Coroutine generator
 template<typename T>
 struct Generator {
     struct promise_type {
-        std::optional<T> current_value;
+        optional<T> current_value;
 
         Generator get_return_object() {
-            return Generator{
-                std::coroutine_handle<promise_type>::from_promise(*this)
-            };
+            return Generator{coroutine_handle<promise_type>::from_promise(*this)};
         }
-
-        std::suspend_always initial_suspend() { return {}; }
-        std::suspend_always final_suspend() noexcept { return {}; }
-        std::suspend_always yield_value(T value) {
+        suspend_always initial_suspend() { return {}; }
+        suspend_always final_suspend() noexcept { return {}; }
+        suspend_always yield_value(T value) {
             current_value = value;
             return {};
         }
-
         void return_void() {}
-        void unhandled_exception() { std::terminate(); }
+        void unhandled_exception() { terminate(); }
     };
 
-    using handle_type = std::coroutine_handle<promise_type>;
+    using handle_type = coroutine_handle<promise_type>;
     handle_type h;
 
     Generator(handle_type h) : h(h) {}
     ~Generator() { if (h) h.destroy(); }
 
-    std::optional<T> next() {
+    optional<T> next() {
         if (!h.done()) {
             h.resume();
             return h.promise().current_value;
         }
-        return std::nullopt;
+        return nullopt;
     }
 };
 
-// Coroutine-based state machine that reacts to input
-// it coyields the next state to transition to
-Generator<State> stateMachine(queue<int>& q, mutex& m, condition_variable& cv) {
-    co_yield State::Start;
+// Event-driven state machine
+Generator<State> stateMachine(EventQueue<int>& events) {
+    State current = State::Start;
+    co_yield current;
 
     while (true) {
-        unique_lock<mutex> ul(m);
-        cv.wait(ul, [&]() { return !q.empty(); });
+        int choice = events.wait_and_pop();
 
-        int choice = q.front();
-        q.pop();
+        switch (choice) {
+            case 1: current = State::Play; break;
+            case 2: current = State::Pause; break;
+            case 3: 
+                if (current == State::Play) {
+                    cout << "Increased Vol\n";
+                    continue; // don't yield new state, just log
+                } else {
+                    cout << "NO OP\n";
+                    continue;
+                }
+            case 0: current = State::Stop; break;
+            default: 
+                cout << "Invalid choice!\n";
+                continue;
+        }
 
-        if (choice == 1) co_yield State::Play;
-        else if (choice == 2) co_yield State::Pause;
-        else if (choice==3) co_yield State::Vol;
-        else if (choice == 0) {
-            co_yield State::Stop;
+        co_yield current;
+
+        if (current == State::Stop)
             break;
-        } else {
-            cout << "Invalid choice!\n";
-        }
     }
 }
 
-// Thread to read user input
-void interface() {
-    bool done = false;
-    while (!done) {
-        cout << "Enter input (1/play 2/pause 3/increase volume 0/stop): ";
+// Input thread
+void interface(EventQueue<int>& events) {
+    while (true) {
+        cout << "Enter input (1/play 2/pause 3/vol 0/stop): ";
         int choice;
-        cin >> choice;
-
-        {
-            lock_guard<mutex> lg(m);
-            q.push(choice);
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input!\n";
+            continue;
         }
-        cv.notify_one();
-        done = (choice == 0);
+        events.push(choice);
+        if (choice == 0) break;
     }
 }
 
-// Thread to process state machine
-void process() {
-    auto sm = stateMachine(q, m, cv);
-    State current_state = State::Start;
+// Processing thread
+void processor(EventQueue<int>& events) {
+    auto sm = stateMachine(events);
     while (auto s = sm.next()) {
         switch (*s) {
-            case State::Start: cout << "State: Start\n"; current_state=State::Start; break;
-            case State::Play:  cout << "State: Play\n";  current_state=State::Play; break;
-            case State::Pause: cout << "State: Pause\n"; current_state=State::Pause; break;
-            case State::Stop:  cout << "State: Stop\n";  break;
-            case State::Vol: 
-                {
-                    if (current_state!=State::Play) {
-                        cout<<"NO OP"<<endl;
-                        break; 
-                    }
-                    cout<<"Increased Vol "<<endl;
-                    break;
-                }
+            case State::Start: cout << "State: Start\n"; break;
+            case State::Play:  cout << "State: Play\n"; break;
+            case State::Pause: cout << "State: Pause\n"; break;
+            case State::Stop:  cout << "State: Stop\n"; break;
+            case State::Vol:   break; // handled inline
         }
 
         if (*s == State::Stop) break;
@@ -119,7 +134,8 @@ void process() {
 }
 
 int main() {
-    jthread ui(interface);
-    jthread processor(process);
+    EventQueue<int> events;
+    jthread t1(interface, ref(events));
+    jthread t2(processor, ref(events));
     return 0;
 }
