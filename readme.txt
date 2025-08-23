@@ -3,14 +3,11 @@ Expert C++ Programmer with  exeperience in developing Low Latency, options prici
 Provided technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
-    - Programming Languages: C++ (upto C++20)
+    - Programming Languages: C++ (upto C++23) [guru level], python[regular user]
     - Operating System - Linux and a lot Unix variants
-    - Distributed Systems - solace, zeroMQ, kafka
-    - databases - Oracle, postgres, redis, memcached
     - Networking - TCP/IP, UDP
     - Scripting - Unix Scripting
     - Testing - gtest, catch
-    - Web Stuff - Node.js, python/flask
 
 Special interests topics
     - Low latency programming   
@@ -18,6 +15,7 @@ Special interests topics
     - distributed computing
 
 Domain Expertise    
+    - Equities: Smart order routing (SOR), Market Microstructure
     - Derivatives pricing & risk software
     - Payment transaction software
 
