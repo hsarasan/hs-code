@@ -31,7 +31,7 @@ def random_order():
     qty = random.randint(1, 1000)
     price = round(mid_prices[sym] * (1 + random.uniform(-0.01, 0.01)), 2)
     ord_type = "LIMIT" if random.random() < 0.7 else "MARKET"
-    ts = time.time()
+    ts = time.time_ns()
     return {
         "client": client,
         "symbol": sym,
