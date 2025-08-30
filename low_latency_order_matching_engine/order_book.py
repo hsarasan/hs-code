@@ -1,7 +1,7 @@
 import asyncio
 import random
-import json
 import time
+import json
 
 # Exchanges and ports
 EXCHANGES = {
@@ -12,12 +12,12 @@ EXCHANGES = {
 }
 
 # Symbols to publish
-SYMBOLS = [f"SYM{i}" for i in range(1, 11)]  # SYM1 ... SYM10
+SYMBOLS = [f"SYM{i:02d}" for i in range(1, 11)]  # SYM01 ... SYM10
 
 # Generate a random order book snapshot for a symbol
 def generate_order_book(symbol, exchange):
-    bids = [{"price": round(100 + random.random(), 2), "qty": random.randint(1, 100)} for _ in range(5)]
-    asks = [{"price": round(101 + random.random(), 2), "qty": random.randint(1, 100)} for _ in range(5)]
+    bids = [{"price": round(random.uniform(10, 12), 2), "qty": random.randint(1, 100)} for _ in range(5)]
+    asks = [{"price": round(random.uniform(10, 12), 2), "qty": random.randint(1, 100)} for _ in range(5)]
     return {
         "exchange": exchange,
         "symbol": symbol,
@@ -32,13 +32,11 @@ async def handle_client(reader, writer, exchange):
 
     try:
         while True:
-            # Generate snapshots for all symbols
             for symbol in SYMBOLS:
                 snapshot = generate_order_book(symbol, exchange)
                 message = json.dumps(snapshot) + "\n"
                 writer.write(message.encode())
             await writer.drain()
-
             await asyncio.sleep(1)  # publish every second
     except asyncio.CancelledError:
         print(f"Client {addr} disconnected from {exchange}")
