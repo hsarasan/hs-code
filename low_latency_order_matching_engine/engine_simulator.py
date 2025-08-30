@@ -1,102 +1,87 @@
-# round_robin_client.py
 import asyncio
 import random
 import time
 
 EXCHANGES = {
-    "LSE": 9101,
-    "CHIX": 9102,
-    "TRQ": 9103,
-    "BATS": 9104,
+    "LSE": 9001,
+    "CHIX": 9002,
+    "TRQ": 9003,
+    "BATS": 9004,
 }
 
-symbols = [f"STK{i:03d}" for i in range(1, 21)]
-clients = ["CLIENT1"]
+SYMBOLS = [f"SYM{i}" for i in range(10)]
+NUM_CLIENTS = 3
 
-# ----------------------------
-# FIX Helpers
-# ----------------------------
-def build_fix(fields: dict) -> str:
-    return "|".join(f"{k}={v}" for k,v in fields.items()) + "|"
 
-def parse_fix(msg: str) -> dict:
-    return {kv.split("=")[0]: kv.split("=")[1] for kv in msg.strip().split("|") if kv}
-
-# ----------------------------
-# Random Order Generator (FIX NewOrderSingle)
-# ----------------------------
-order_id = 1
-def random_order(client_id, exchange):
-    global order_id
-    cl_ord_id = str(order_id)
-    order_id += 1
-
-    sym = random.choice(symbols)
-    side = random.choice(["1", "2"])  # 1=Buy, 2=Sell
-    qty = random.randint(1, 1000)
-    price = round(random.uniform(50, 150), 2)
-    ord_type = "2" if random.random() < 0.7 else "1"  # 2=Limit,1=Market
-    ts = time.time_ns()
-
-    return build_fix({
-        "35": "D",          # NewOrderSingle
-        "11": cl_ord_id,    # ClOrdID
-        "55": sym,          # Symbol
-        "54": side,         # Side
-        "38": qty,          # OrderQty
-        "44": price,        # Price
-        "40": ord_type,     # OrdType
-        "49": client_id,    # SenderCompID
-        "56": exchange,     # TargetCompID
-        "60": ts            # Timestamp
-    })
-
-# ----------------------------
-# Client logic
-# ----------------------------
-async def connect_to_exchange(exchange, port):
-    reader, writer = await asyncio.open_connection("127.0.0.1", port)
-    return reader, writer
-
-async def round_robin_client():
-    # Connect to all exchanges
-    connections = {}
-    for exch, port in EXCHANGES.items():
-        reader, writer = await connect_to_exchange(exch, port)
-        connections[exch] = (reader, writer)
-        print(f"[CLIENT] Connected to {exch} on port {port}")
-
-    exchanges = list(EXCHANGES.keys())
-    i = 0
-
+# -------------------------
+# Exchange Server
+# -------------------------
+async def handle_client(reader, writer, exchange_name):
+    """Keeps connection open but we only push data from broadcaster"""
+    addr = writer.get_extra_info('peername')
+    print(f"{exchange_name}: Client connected {addr}")
     try:
         while True:
-            exch = exchanges[i % len(exchanges)]
-            reader, writer = connections[exch]
+            await asyncio.sleep(3600)  # keep alive
+    except asyncio.CancelledError:
+        print(f"{exchange_name}: Closing connection {addr}")
+        writer.close()
+        await writer.wait_closed()
 
-            # Generate FIX order
-            order = random_order("CLIENT1", exch)
-            writer.write((order + "\n").encode())
-            await writer.drain()
-            print(f"[CLIENT -> {exch}] {order}")
 
-            # Wait for response
-            resp = await reader.readline()
-            if resp:
-                fix_resp = parse_fix(resp.decode().strip())
-                print(f"[{exch} -> CLIENT] {fix_resp}")
+async def start_exchange(exchange_name, port, queues):
+    server = await asyncio.start_server(
+        lambda r, w: handle_client(r, w, exchange_name), "127.0.0.1", port
+    )
+    print(f"{exchange_name} started on port {port}")
 
-            await asyncio.sleep(1)  # 1 message/sec
-            i += 1
-    except KeyboardInterrupt:
-        print("[CLIENT] Stopping...")
-    finally:
-        for r, w in connections.values():
-            w.close()
-            await w.wait_closed()
+    async def broadcaster():
+        while True:
+            # Generate order book snapshot for all symbols
+            timestamp = time.time()
+            for sym in SYMBOLS:
+                bid = round(random.uniform(90, 110), 2)
+                ask = bid + round(random.uniform(0.1, 1.0), 2)
+                msg = f"{exchange_name}|{sym}|bid={bid}|ask={ask}|ts={timestamp}\n"
+                for q in queues[exchange_name]:
+                    await q.put(msg)
+            await asyncio.sleep(1)
 
-# ----------------------------
-# Main
-# ----------------------------
+    asyncio.create_task(broadcaster())
+    async with server:
+        await server.serve_forever()
+
+
+# -------------------------
+# Clients
+# -------------------------
+async def client_task(client_id, exchange_name, port, queue):
+    reader, writer = await asyncio.open_connection("127.0.0.1", port)
+    print(f"Client {client_id} connected to {exchange_name} on port {port}")
+
+    async def printer():
+        while True:
+            msg = await queue.get()
+            print(f"[Client {client_id}] {msg.strip()}")
+
+    asyncio.create_task(printer())
+    await asyncio.sleep(3600)
+
+
+async def main():
+    queues = {ex: [asyncio.Queue() for _ in range(NUM_CLIENTS)] for ex in EXCHANGES}
+
+    # Start exchanges
+    for ex, port in EXCHANGES.items():
+        asyncio.create_task(start_exchange(ex, port, queues))
+
+    # Start clients
+    for cid in range(NUM_CLIENTS):
+        for ex, port in EXCHANGES.items():
+            asyncio.create_task(client_task(cid, ex, port, queues[ex][cid]))
+
+    await asyncio.sleep(3600)
+
+
 if __name__ == "__main__":
-    asyncio.run(round_robin_client())
+    asyncio.run(main())
