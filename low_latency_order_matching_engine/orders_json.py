@@ -4,8 +4,8 @@ import random
 import time
 import json
 
-NUM_SYMBOLS = 100
-NUM_CLIENTS = 100
+NUM_SYMBOLS = 10
+NUM_CLIENTS = 10
 ORDERS_PER_SECOND = 5  # total orders per second
 HOST = "127.0.0.1"
 PORT = 9100
@@ -14,8 +14,8 @@ SEED = 42
 # ----------------------------
 # Symbols and Clients
 # ----------------------------
-symbols = [f"STK{i:03d}" for i in range(1, NUM_SYMBOLS+1)]
-clients = [f"CLT{i:03d}" for i in range(1, NUM_CLIENTS+1)]
+symbols = [f"SYM{i:02d}" for i in range(1, NUM_SYMBOLS+1)]
+clients = [f"CLT{i:02d}" for i in range(1, NUM_CLIENTS+1)]
 random.seed(SEED)
 
 # assign a reference mid-price per symbol
