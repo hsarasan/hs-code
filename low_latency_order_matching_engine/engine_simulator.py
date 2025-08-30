@@ -2,86 +2,75 @@ import asyncio
 import random
 import time
 
-EXCHANGES = {
-    "LSE": 9001,
-    "CHIX": 9002,
-    "TRQ": 9003,
-    "BATS": 9004,
-}
+# Exchange connection details
+EXCHANGES = [
+    ("127.0.0.1", 5001, "LSE"),
+    ("127.0.0.1", 5002, "CHIX"),
+    ("127.0.0.1", 5003, "TRQ"),
+    ("127.0.0.1", 5004, "BATS"),
+]
 
-SYMBOLS = [f"SYM{i}" for i in range(10)]
-NUM_CLIENTS = 3
+SYMBOLS = [f"SYM{i:02d}" for i in range(1, 11)]
+SIDES = ["1", "2"]  # 1=Buy, 2=Sell
 
+# Build FIX NewOrderSingle
+def build_fix_order(order_id, symbol, side, qty, price):
+    ts = time.strftime('%Y%m%d-%H:%M:%S')
+    msg = [
+        "35=D",        # NewOrderSingle
+        f"11={order_id}",  # ClOrdID
+        f"55={symbol}",    # Symbol
+        f"54={side}",      # Side
+        f"38={qty}",       # OrderQty
+        f"44={price}",     # Price
+        f"60={ts}",        # TransactTime
+    ]
+    return "|".join(msg) + "|"
 
-# -------------------------
-# Exchange Server
-# -------------------------
-async def handle_client(reader, writer, exchange_name):
-    """Keeps connection open but we only push data from broadcaster"""
-    addr = writer.get_extra_info('peername')
-    print(f"{exchange_name}: Client connected {addr}")
+async def order_engine():
+    order_id = 1
+    connections = []
+
+    # Connect to all exchanges
+    for host, port, name in EXCHANGES:
+        reader, writer = await asyncio.open_connection(host, port)
+        connections.append((reader, writer, name))
+        print(f"[Order Engine] Connected to {name} at {host}:{port}")
+
+    idx = 0
     try:
         while True:
-            await asyncio.sleep(3600)  # keep alive
-    except asyncio.CancelledError:
-        print(f"{exchange_name}: Closing connection {addr}")
-        writer.close()
-        await writer.wait_closed()
+            reader, writer, exch_name = connections[idx % len(connections)]
 
+            # Random symbol, side, qty, price
+            symbol = random.choice(SYMBOLS)
+            side = random.choice(SIDES)
+            qty = random.randint(1, 100)
+            price = round(random.uniform(90, 110), 2)
 
-async def start_exchange(exchange_name, port, queues):
-    server = await asyncio.start_server(
-        lambda r, w: handle_client(r, w, exchange_name), "127.0.0.1", port
-    )
-    print(f"{exchange_name} started on port {port}")
+            fix_order = build_fix_order(order_id, symbol, side, qty, price)
+            order_id += 1
 
-    async def broadcaster():
-        while True:
-            # Generate order book snapshot for all symbols
-            timestamp = time.time()
-            for sym in SYMBOLS:
-                bid = round(random.uniform(90, 110), 2)
-                ask = bid + round(random.uniform(0.1, 1.0), 2)
-                msg = f"{exchange_name}|{sym}|bid={bid}|ask={ask}|ts={timestamp}\n"
-                for q in queues[exchange_name]:
-                    await q.put(msg)
-            await asyncio.sleep(1)
+            print(f"\n[Order Engine -> {exch_name}] {fix_order}")
+            writer.write(fix_order.encode())
+            await writer.drain()
 
-    asyncio.create_task(broadcaster())
-    async with server:
-        await server.serve_forever()
+            # Wait for response
+            try:
+                data = await asyncio.wait_for(reader.read(1024), timeout=1.0)
+                if data:
+                    print(f"[{exch_name} -> Order Engine] {data.decode().strip()}")
+            except asyncio.TimeoutError:
+                print(f"[Order Engine] No response from {exch_name}")
 
-
-# -------------------------
-# Clients
-# -------------------------
-async def client_task(client_id, exchange_name, port, queue):
-    reader, writer = await asyncio.open_connection("127.0.0.1", port)
-    print(f"Client {client_id} connected to {exchange_name} on port {port}")
-
-    async def printer():
-        while True:
-            msg = await queue.get()
-            print(f"[Client {client_id}] {msg.strip()}")
-
-    asyncio.create_task(printer())
-    await asyncio.sleep(3600)
-
-
-async def main():
-    queues = {ex: [asyncio.Queue() for _ in range(NUM_CLIENTS)] for ex in EXCHANGES}
-
-    # Start exchanges
-    for ex, port in EXCHANGES.items():
-        asyncio.create_task(start_exchange(ex, port, queues))
-
-    # Start clients
-    for cid in range(NUM_CLIENTS):
-        for ex, port in EXCHANGES.items():
-            asyncio.create_task(client_task(cid, ex, port, queues[ex][cid]))
-
-    await asyncio.sleep(3600)
-
+            idx += 1
+            await asyncio.sleep(1)  # 1 order/sec
+    except KeyboardInterrupt:
+        print("[Order Engine] Shutting down...")
+    finally:
+        for r, w, _ in connections:
+            w.close()
+            await w.wait_closed()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(order_engine())

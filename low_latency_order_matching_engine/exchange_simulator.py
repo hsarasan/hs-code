@@ -1,84 +1,76 @@
-# exchange_simulator.py
 import asyncio
 import random
-import time
 
-# Exchange to port mapping
+# Exchange ports
 EXCHANGES = {
-    "LSE": 9101,
-    "CHIX": 9102,
-    "TRQ": 9103,
-    "BATS": 9104,
+    "LSE": 5001,
+    "CHIX": 5002,
+    "TRQ": 5003,
+    "BATS": 5004,
 }
 
-# ----------------------------
-# FIX Helpers
-# ----------------------------
-def parse_fix(msg: str) -> dict:
-    """Convert FIX string into dict (pipe separated for readability)."""
-    return {kv.split("=")[0]: kv.split("=")[1] for kv in msg.strip().split("|") if kv}
+def generate_fix_execution_report(order_msg, accepted=True):
+    """Generate a simple FIX Execution Report (35=8)"""
+    fields = order_msg.strip().split("|")
+    order_id = next((f.split("=")[1] for f in fields if f.startswith("11=")), "UNKNOWN")
 
-def build_fix(fields: dict) -> str:
-    """Convert dict into FIX string (pipe separated)."""
-    return "|".join(f"{k}={v}" for k,v in fields.items()) + "|"
+    response = [
+        "8=FIX.4.2",
+        f"37={order_id}",  # OrderID
+        f"11={order_id}",  # ClOrdID
+        "17=1",            # ExecID
+        "20=0",            # ExecTransType
+        "39=" + ("2" if accepted else "8"),  # OrdStatus: 2=Filled, 8=Rejected
+        "150=" + ("F" if accepted else "8"), # ExecType: F=Filled, 8=Rejected
+        "10=000"
+    ]
+    return "|".join(response) + "\n"
 
-# ----------------------------
-# Connection handler
-# ----------------------------
-async def handle_client(reader, writer, exchange):
-    addr = writer.get_extra_info("peername")
-    print(f"[{exchange}] Connection from {addr}")
+async def handle_client(reader, writer, exchange_name):
+    addr = writer.get_extra_info('peername')
+    print(f"[{exchange_name}] Connection from {addr}")
+
     try:
         while True:
-            data = await reader.readline()
+            data = await reader.read(1024)
             if not data:
                 break
-            msg = data.decode().strip()
-            order = parse_fix(msg)
-            cl_ord_id = order.get("11", "UNKNOWN")
-            client = order.get("49", "CLIENT?")
-            now = time.time_ns()
+            message = data.decode().strip()
+            if not message:
+                continue
 
-            # Randomly reject 20% of orders
-            reject = random.random() < 0.2
-            exec_id = f"{exchange}{random.randint(1000,9999)}"
+            # Print request
+            print(f"[{exchange_name}] Received: {message}")
 
-            response = {
-                "35": "8",         # Execution Report
-                "11": cl_ord_id,   # Client Order ID
-                "17": exec_id,     # Execution ID
-                "39": "8" if reject else "0",   # Order Status (8=Rejected, 0=New)
-                "150": "8" if reject else "0",  # Exec Type (8=Rejected, 0=New)
-                "49": exchange,    # SenderCompID = Exchange
-                "56": client,      # TargetCompID = Client
-                "60": now          # Timestamp
-            }
+            # Random 20% rejection
+            accepted = random.random() > 0.2
+            response = generate_fix_execution_report(message, accepted)
 
-            fix_resp = build_fix(response)
-            writer.write((fix_resp + "\n").encode())
+            # Print and send response
+            print(f"[{exchange_name}] Sending response: {response.strip()}")
+            writer.write(response.encode())
             await writer.drain()
-            print(f"[{exchange}] Order {cl_ord_id} -> {'REJECTED' if reject else 'ACCEPTED'}")
-    except Exception as e:
-        print(f"[{exchange}] Error: {e}")
+    except ConnectionResetError:
+        print(f"[{exchange_name}] Connection lost: {addr}")
     finally:
         writer.close()
         await writer.wait_closed()
-        print(f"[{exchange}] Connection closed {addr}")
+        print(f"[{exchange_name}] Connection closed: {addr}")
 
-# ----------------------------
-# Main server loop
-# ----------------------------
+async def start_exchange(name, port):
+    server = await asyncio.start_server(
+        lambda r, w: handle_client(r, w, name),
+        "127.0.0.1",
+        port
+    )
+    addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
+    print(f"[{name}] Listening on {addrs}")
+    async with server:
+        await server.serve_forever()
+
 async def main():
-    servers = []
-    for exch, port in EXCHANGES.items():
-        server = await asyncio.start_server(
-            lambda r,w,exch=exch: handle_client(r,w,exch), "127.0.0.1", port
-        )
-        servers.append(server)
-        print(f"[{exch}] Listening on 127.0.0.1:{port}")
-
-    # Run all servers concurrently
-    await asyncio.gather(*(s.serve_forever() for s in servers))
+    tasks = [start_exchange(name, port) for name, port in EXCHANGES.items()]
+    await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
     asyncio.run(main())
