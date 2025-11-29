@@ -1,13 +1,13 @@
-Expert C++ Programmer with  exeperience in developing Low Latency, options pricing/risk and distributed systems
+Guru level C++ Programmer with  exeperience in developing Low Latency, options pricing/risk and distributed systems
 
 Provided technical leadership and mentoring of teams of varied sizes
 
 Techncial Expertise
-    - Programming Languages: C++ (upto C++23) [guru level], python[regular user]
+    - Programming Languages: C++ (upto C++23) [guru level], python[regular user], Rust[well versed]
     - Operating System - Linux and a lot Unix variants
     - Networking - TCP/IP, UDP
     - Scripting - Unix Scripting
-    - Testing - gtest, catch
+    - Testing - gtest, catch, boost test
 
 Special interests topics
     - Low latency programming   
@@ -19,7 +19,8 @@ Domain Expertise
     - Derivatives pricing & risk software
     - Payment transaction software
 
- Semi commercial personal projects
-    - a website for creating and storing flashcards (aimed at students of all ages)  
-
+Personal Projects
+    - A mini trading engine developed in C++ ( git url )
+    - Distributed cache developed in C++ and Linux (git url)
+    - Derivatives Library developed in RUST ( git url)
  --
