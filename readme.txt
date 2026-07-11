@@ -2,14 +2,15 @@ Executive Profile
 ==========================================
 Senior C++ Systems Engineer specializing in ultra-low latency electronic trading platform
 
-Technical Expertise
-===========================
-- Languages: C++ (C++17/20/23), Rust, Python.
-- Low-Latency & Systems: Lock-Free/Wait-Free Concurrency, Memory Management (Custom Allocators, Cache-Alignment), Cache-Conscious Data Structures, SIMD, Template Metaprogramming.
-- Linux & Infrastructure: Linux Performance Engineering, Core Pinning, Thread Affinity, Huge Pages, Low-Latency Kernel Tuning, eBPF.
-- Networking & Protocols: TCP/IP, UDP Multicast, Socket Programming, FIX/FAST, ITCH/OUCH market data protocols.
-- Domain Knowledge: Market Microstructure, Smart Order Routing (SOR), Electronic Execution, Equities & Derivatives Pricing, Real-time Risk Analytics.
-- Tools & Frameworks: Google Test, Catch2, Boost, GDB, Valgrind, Perf, Google Benchmark.
+###  Technical Expertise
+
+| | |
+| :--- | :--- |
+| **Core Languages** | C++ (17/20/23), Rust, Python, Assembly |
+| **Low-Latency / Systems** | Lock/Wait-Free Concurrency, Custom Allocators, Cache-Conscious Structures, SIMD, Metaprogramming |
+| **Linux Performance** | Core Pinning, Thread Affinity, Huge Pages, Kernel Tuning, eBPF, Kernel Bypass (OpenOnload) |
+| **Networking & Trading** | TCP/IP, UDP Multicast, Socket Prog, FIX/FAST, ITCH/OUCH, Market Microstructure, SOR |
+| **Tooling & Validation** | Perf, Google Benchmark, GDB, Valgrind, Boost, Google Test, Catch2 |
 
 Core Professional Competencies
 =================================
@@ -26,3 +27,15 @@ Ultra-Low Latency C++ Trading Engine | C++ | [GitHub URL]:
 High-Throughput Distributed Cache | C++ | [GitHub URL]:
 
 High-Performance Derivatives Pricing Library | Rust | [GitHub URL]
+
+Open Source Contributions
+=========================
+
+
+
+Technical Papers
+================
+
+
+
+
