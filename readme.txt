@@ -1,26 +1,39 @@
-Guru level C++ Programmer with  exeperience in developing Low Latency, options pricing/risk and distributed systems
+Executive Profile
+==========================================
+Senior C++ Systems Engineer specializing in ultra-low latency electronic trading platform
 
-Provided technical leadership and mentoring of teams of varied sizes
+Technical Expertise
+=========================
+Core Languages :  C++ (17/20/23), Rust, Python, Assembly 
+Low-Latency / Systems: Lock/Wait-Free Concurrency, Custom Allocators, Cache-Conscious Structures, SIMD, Metaprogramming
+Linux Performance: Core Pinning, Thread Affinity, Huge Pages, Kernel Tuning, eBPF, Kernel Bypass (OpenOnload)
+Networking & Trading: TCP/IP, UDP Multicast, Socket Prog, FIX/FAST, ITCH/OUCH, Market Microstructure, SOR
+Tooling & Validation: Perf, Google Benchmark, GDB, Valgrind, Boost, Google Test, Catch2
 
-Techncial Expertise
-    - Programming Languages: C++ (upto C++23) [guru level], python[regular user], Rust[well versed]
-    - Operating System - Linux and a lot Unix variants
-    - Networking - TCP/IP, UDP
-    - Scripting - Unix Scripting
-    - Testing - gtest, catch, boost test
+Domain Expertise
+=========================
+- Low Latency Trading Systems
+- High Frequency Order Routing and Execution Engines
+- Derivatives Pricing & Risk Management
 
-Special interests topics
-    - Low latency programming   
-    - Generic Programming
-    - distributed computing
 
-Domain Expertise    
-    - Equities: Smart order routing (SOR), Market Microstructure
-    - Derivatives pricing & risk software
-    - Payment transaction software
+Selected Open-Source Engineering Portfolio
+===========================================
+ 
+- Ultra-Low Latency C++ Trading Engine | C++ | [GitHub URL]:
 
-Personal Projects
-    - A mini trading engine developed in C++ ( git url )
-    - Distributed cache developed in C++ and Linux (git url)
-    - Derivatives Library developed in RUST ( git url)
- --
+- High-Throughput Distributed Cache | C++ | [GitHub URL]:
+
+- High-Performance Derivatives Pricing Library | Rust | [GitHub URL]
+
+
+Technical Papers
+================
+
+- Dismantling Jitter: Building a Deterministic Sub-Microsecond Exchange Gateway in Modern C++
+
+- Zero-Allocation Serialization: Leveraging C++20/23 Compilers for Compile-Time Protocol Parsing
+
+
+
+
